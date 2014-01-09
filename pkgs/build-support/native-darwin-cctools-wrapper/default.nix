@@ -8,7 +8,7 @@ stdenv.mkDerivation {
   binaries =
     [ "ar" "as" "c++filt" "gprof" "ld" "nm" "nmedit" "ranlib"
       "size" "strings" "strip" "dsymutil" "libtool" "lipo"
-      "install_name_tool" "arch" "sw_vers"
+      "install_name_tool" "arch" "sw_vers" "xcodebuild"
     ];
 
   builder = ./builder.sh;
