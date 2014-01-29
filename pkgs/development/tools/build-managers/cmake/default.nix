@@ -7,7 +7,7 @@ with stdenv.lib;
 let
   os = stdenv.lib.optionalString;
   majorVersion = "2.8";
-  minorVersion = "9";
+  minorVersion = "12.2";
   version = "${majorVersion}.${minorVersion}";
 in
 
@@ -18,12 +18,12 @@ stdenv.mkDerivation rec {
 
   src = fetchurl {
     url = "${meta.homepage}files/v${majorVersion}/cmake-${version}.tar.gz";
-    sha256 = "1yg68ng732cfm5c0h91chqwhg06zdh45bybm353kd1myk5rwqgfw";
+    sha256 = "0phf295a9cby0v7zqdswr238v5aiy3rb2fs6dz39zjxbmzlp8rcc";
   };
 
   patches =
     # Don't search in non-Nix locations such as /usr, but do search in
-    # Nixpkgs' Glibc.
+    # Nixpkgs' Glibc. 
     optional (stdenv ? glibc) ./search-path.patch;
 
   buildInputs = [ curl expat zlib bzip2 libarchive ]
