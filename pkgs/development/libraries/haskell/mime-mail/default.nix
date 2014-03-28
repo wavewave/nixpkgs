@@ -4,8 +4,8 @@
 
 cabal.mkDerivation (self: {
   pname = "mime-mail";
-  version = "0.4.3";
-  sha256 = "0xh6j4vdg2ispr9f41s8pvx5rb08zqapkqxyvykvjg2ibmczzg4f";
+  version = "0.4.4.1";
+  sha256 = "0jzbkrd62alvgyx9bkrzicz88hjjnnavpv6hl22cxnirz41h8hw0";
   buildDepends = [
     base64Bytestring blazeBuilder filepath random text
   ];

@@ -38,7 +38,7 @@ in {
 
 let
   inherit (stdenv.lib)
-    hasAttr getAttr optional optionalString maintainers platforms;
+    hasAttr getAttr optional optionalString optionalAttrs maintainers platforms;
 
   installkernel = writeTextFile { name = "installkernel"; executable=true; text = ''
     #!${stdenv.shell} -e
@@ -73,9 +73,7 @@ let
 
       installsFirmware = (config.isEnabled "FW_LOADER") &&
         (isModular || (config.isDisabled "FIRMWARE_IN_KERNEL"));
-    in {
-      outputs = if isModular then [ "out" "dev" ] else null;
-
+    in (optionalAttrs isModular { outputs = [ "out" "dev" ]; }) // {
       passthru = {
         inherit version modDirVersion config kernelPatches;
       };
@@ -197,6 +195,7 @@ let
             + ")");
         license = "GPLv2";
         homepage = http://www.kernel.org/;
+        repositories.git = https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git;
         maintainers = [
           maintainers.shlevy
         ];

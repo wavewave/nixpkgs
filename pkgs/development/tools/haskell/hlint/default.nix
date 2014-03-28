@@ -1,15 +1,16 @@
-{ cabal, cpphs, filepath, haskellSrcExts, hscolour, transformers
-, uniplate
+{ cabal, cmdargs, cpphs, filepath, haskellSrcExts, hscolour
+, transformers, uniplate
 }:
 
 cabal.mkDerivation (self: {
   pname = "hlint";
-  version = "1.8.55";
-  sha256 = "184y0vh5rwsv13vj49zvgwwpgdf5y7wxfisry9pv2998flwkf4rj";
+  version = "1.8.59";
+  sha256 = "14yn63zbbqwvxlis0kwga4mrz6qjr8kq1cq7f0rcilgqgh1dkwh8";
   isLibrary = true;
   isExecutable = true;
   buildDepends = [
-    cpphs filepath haskellSrcExts hscolour transformers uniplate
+    cmdargs cpphs filepath haskellSrcExts hscolour transformers
+    uniplate
   ];
   jailbreak = true;
   meta = {

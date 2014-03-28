@@ -15,6 +15,11 @@ let
     # chroot to ${stateDir}, we have to specify it as /ntp.drift.
     driftfile /ntp.drift
 
+    restrict default kod nomodify notrap nopeer noquery
+    restrict -6 default kod nomodify notrap nopeer noquery
+    restrict 127.0.0.1
+    restrict -6 ::1
+
     ${toString (map (server: "server " + server + " iburst\n") config.services.ntp.servers)}
   '';
 

@@ -25,18 +25,14 @@
   amd = {
     shortName = "amd";
     fullName = "AMD License Agreement";
-    url = "http://developer.amd.com/amd-license-agreement/";
-  };
+    url = http://developer.amd.com/amd-license-agreement/;
+  };#
 
-  amdadl = {
-    shortName = "amd-adl";
-    fullName = "amd-adl license";
-    url = "http://sources.gentoo.org/cgi-bin/viewvc.cgi/gentoo-x86/licenses/AMD-ADL?revision=1.1";
+  apsl20 = {
+    shortName = "APSL 2.0";
+    fullName = "Apple Public Source License 2.0";
+    url = http://opensource.org/licenses/APSL-2.0;
   };
-
-  # Apple Public Source License 2.0;
-  # http://opensource.org/licenses/APSL-2.0
-  apsl20 = "APSL 2.0";
 
   asl20 = {
     shortName = "ASL2.0";
@@ -86,7 +82,11 @@
     url = http://www.eclipse.org/legal/epl-v10.html;
   };
 
-  gpl2 = "GPLv2";
+  gpl2 = {
+    shortName = "GPLv2";
+    fullName = "GNU General Public License version 2";
+    url = http://www.gnu.org/licenses/old-licenses/gpl-2.0.html;
+  };
 
   gpl2Oss = {
     shortName = "GPLv2+OSS";
@@ -94,9 +94,11 @@
     url = http://www.mysql.com/about/legal/licensing/foss-exception;
   };
 
-  # GNU General Public License version 2 or later;
-  # http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
-  gpl2Plus = "GPLv2+";
+  gpl2Plus = {
+    shortName = "GPLv2+";
+    fullName = "GNU General Public License version 2 or later";
+    url = http://www.gnu.org/licenses/old-licenses/gpl-2.0.html;
+  };
 
   gpl3 = {
     shortName = "GPLv3";
@@ -140,7 +142,11 @@
     url = https://fedoraproject.org/wiki/Licensing/libtiff;
   };
 
-  lgpl2 = "LGPLv2";
+  lgpl2 = {
+    shortName = "LGPLv2";
+    fullName = "GNU Library General Public License version 2";
+    url = http://www.gnu.org/licenses/old-licenses/lgpl-2.0.html;
+  };
 
   lgpl2Plus = {
     shortName = "LGPLv2+";
@@ -148,7 +154,11 @@
     url = http://www.gnu.org/licenses/old-licenses/lgpl-2.0.html;
   };
 
-  lgpl21 = "LGPLv2.1";
+  lgpl21 = {
+    shortName = "LGPLv2.1";
+    fullName = "GNU Lesser General Public License version 2.1";
+    url = http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html;
+  };
 
   lgpl21Plus = {
     shortName = "LGPLv2.1+";

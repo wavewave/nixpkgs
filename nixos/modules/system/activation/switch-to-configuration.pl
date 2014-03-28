@@ -93,8 +93,13 @@ sub parseFstab {
 
 sub parseUnit {
     my ($filename) = @_;
+    parseKeyValues(read_file($filename));
+}
+
+sub parseKeyValues {
+    my @lines = @_;
     my $info = {};
-    foreach my $line (read_file($filename)) {
+    foreach my $line (@_) {
         # FIXME: not quite correct.
         $line =~ /^([^=]+)=(.*)$/ or next;
         $info->{$1} = $2;
@@ -123,7 +128,7 @@ while (my ($unit, $state) = each %{$activePrev}) {
     $baseName =~ s/\.[a-z]*$//;
 
     if (-e $prevUnitFile && ($state->{state} eq "active" || $state->{state} eq "activating")) {
-        if (! -e $newUnitFile) {
+        if (! -e $newUnitFile || abs_path($newUnitFile) eq "/dev/null") {
             push @unitsToStop, $unit;
         }
 
@@ -337,8 +342,21 @@ system("@systemd@/bin/systemctl", "reload", "dbus.service");
 my (@failed, @new, @restarting);
 my $activeNew = getActiveUnits;
 while (my ($unit, $state) = each %{$activeNew}) {
-    push @failed, $unit if $state->{state} eq "failed" || $state->{substate} eq "auto-restart";
-    push @new, $unit if $state->{state} ne "failed" && !defined $activePrev->{$unit};
+    if ($state->{state} eq "failed") {
+        push @failed, $unit;
+    }
+    elsif ($state->{state} eq "auto-restart") {
+        # A unit in auto-restart state is a failure *if* it previously failed to start
+        my $lines = `@systemd@/bin/systemctl show '$unit'`;
+        my $info = parseKeyValues(split "\n", $lines);
+
+        if ($info->{ExecMainStatus} ne '0') {
+            push @failed, $unit;
+        }
+    }
+    elsif ($state->{state} ne "failed" && !defined $activePrev->{$unit}) {
+        push @new, $unit;
+    }
 }
 
 print STDERR "the following new units were started: ", join(", ", sort(@new)), "\n"

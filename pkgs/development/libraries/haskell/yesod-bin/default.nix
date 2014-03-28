@@ -1,27 +1,27 @@
 { cabal, attoparsec, base64Bytestring, blazeBuilder, Cabal, conduit
-, dataDefault, fileEmbed, filepath, fsnotify, ghcPaths, httpConduit
-, httpReverseProxy, httpTypes, liftedBase, network, networkConduit
-, optparseApplicative, parsec, projectTemplate, resourcet
-, shakespeare, shakespeareCss, shakespeareJs, shakespeareText
-, split, systemFileio, systemFilepath, tar, text, time
-, transformers, unixCompat, unorderedContainers, wai, warp, yaml
-, zlib
+, dataDefaultClass, fileEmbed, filepath, fsnotify, ghcPaths
+, httpConduit, httpReverseProxy, httpTypes, liftedBase, network
+, networkConduit, optparseApplicative, parsec, projectTemplate
+, resourcet, shakespeare, shakespeareCss, shakespeareJs
+, shakespeareText, split, systemFileio, systemFilepath, tar, text
+, time, transformers, unixCompat, unorderedContainers, wai, warp
+, yaml, zlib
 }:
 
 cabal.mkDerivation (self: {
   pname = "yesod-bin";
-  version = "1.2.5.7";
-  sha256 = "0vxkwdqmfi2ccknmgx0xh6w1p7bw3wi24w3c3fw80g72j9sxr5hn";
+  version = "1.2.7.3";
+  sha256 = "05kbfnkigk4p1vjw0h1pkp7jfczjq99vgrsaz45faajadnhffnpz";
   isLibrary = false;
   isExecutable = true;
   buildDepends = [
-    attoparsec base64Bytestring blazeBuilder Cabal conduit dataDefault
-    fileEmbed filepath fsnotify ghcPaths httpConduit httpReverseProxy
-    httpTypes liftedBase network networkConduit optparseApplicative
-    parsec projectTemplate resourcet shakespeare shakespeareCss
-    shakespeareJs shakespeareText split systemFileio systemFilepath tar
-    text time transformers unixCompat unorderedContainers wai warp yaml
-    zlib
+    attoparsec base64Bytestring blazeBuilder Cabal conduit
+    dataDefaultClass fileEmbed filepath fsnotify ghcPaths httpConduit
+    httpReverseProxy httpTypes liftedBase network networkConduit
+    optparseApplicative parsec projectTemplate resourcet shakespeare
+    shakespeareCss shakespeareJs shakespeareText split systemFileio
+    systemFilepath tar text time transformers unixCompat
+    unorderedContainers wai warp yaml zlib
   ];
   meta = {
     homepage = "http://www.yesodweb.com/";
