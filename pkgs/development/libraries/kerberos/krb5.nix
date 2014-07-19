@@ -23,7 +23,7 @@ stdenv.mkDerivation (rec {
     cd ${name}/src
   '';
 
-  configureFlags = "--with-tcl=no"
+  configureFlags = "--with-tcl=no";
 
   #doCheck = true; # report: No suitable file for testing purposes
 
