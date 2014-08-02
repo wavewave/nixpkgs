@@ -128,6 +128,9 @@ assert !enableStaticLibraries -> versionOlder "7.7" ghc.version;
             # pkgconfig-depends Cabal field
             pkgconfigDepends = [];
 
+            # only os x 
+            noHaddock = stdenv.isDarwin;
+
             isLibrary = ! self.isExecutable;
             isExecutable = false;
 
