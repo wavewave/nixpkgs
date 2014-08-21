@@ -8,9 +8,10 @@ cabal.mkDerivation (self: {
   version = "0.3.14";
   sha256 = "1x5cricx2n1wwvdad4i3q8s3gb28a129v3kkj9rn9803xh43zh29";
   buildDepends = [ systemFilepath text time ];
-  testDepends = [
-    chell systemFilepath temporary text time transformers
-  ];
+  #testDepends = [
+  #  chell systemFilepath temporary text time transformers
+  #];
+  doCheck = false;
   meta = {
     homepage = "https://john-millikin.com/software/haskell-filesystem/";
     description = "Consistent filesystem interaction across GHC versions";
