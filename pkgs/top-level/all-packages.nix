@@ -419,6 +419,8 @@ let
 
   ### TOOLS
 
+  abduco = callPackage ../tools/misc/abduco { };
+
   acct = callPackage ../tools/system/acct { };
 
   acoustidFingerprinter = callPackage ../tools/audio/acoustid-fingerprinter {
@@ -579,7 +581,7 @@ let
 
   bmon = callPackage ../tools/misc/bmon { };
 
-  bochs = callPackage ../applications/virtualization/bochs { };
+  bochs = callPackage ../applications/virtualization/bochs { wxSupport = false; };
 
   boomerang = callPackage ../development/tools/boomerang { };
 
@@ -603,6 +605,8 @@ let
 
   consul = callPackage ../servers/consul { };
   consul_ui = callPackage ../servers/consul/ui.nix { };
+
+  chntpw = callPackage ../tools/security/chntpw { };
 
   coprthr = callPackage ../development/libraries/coprthr {
     flex = flex_2_5_35;
@@ -984,6 +988,8 @@ let
   evtest = callPackage ../applications/misc/evtest { };
 
   exempi = callPackage ../development/libraries/exempi { };
+
+  execline = callPackage ../tools/misc/execline { };
 
   exercism = callPackage ../development/tools/exercism { };
 
@@ -3097,6 +3103,7 @@ let
     suitesparse = suitesparse.override {
       inherit liblapack;
     };
+    openblas = openblas_0_2_10;
     llvm = llvm_34;
   };
   julia = julia021;
@@ -3213,11 +3220,17 @@ let
 
     cryptokit = callPackage ../development/ocaml-modules/cryptokit { };
 
+    csv = callPackage ../development/ocaml-modules/csv { };
+
     deriving = callPackage ../development/tools/ocaml/deriving { };
 
     easy-format = callPackage ../development/ocaml-modules/easy-format { };
 
     findlib = callPackage ../development/tools/ocaml/findlib { };
+
+    javalib = callPackage ../development/ocaml-modules/javalib {
+      extlib = ocaml_extlib_maximal;
+    };
 
     dypgen = callPackage ../development/ocaml-modules/dypgen { };
 
@@ -3294,12 +3307,22 @@ let
     ocaml_sexplib = callPackage ../development/ocaml-modules/sexplib { };
 
     ocaml_extlib = callPackage ../development/ocaml-modules/extlib { };
+    ocaml_extlib_maximal = callPackage ../development/ocaml-modules/extlib {
+      minimal = false;
+    };
 
     pycaml = callPackage ../development/ocaml-modules/pycaml { };
 
     opam_1_0_0 = callPackage ../development/tools/ocaml/opam/1.0.0.nix { };
     opam_1_1 = callPackage ../development/tools/ocaml/opam/1.1.nix { };
     opam = opam_1_1;
+
+    sawja = callPackage ../development/ocaml-modules/sawja { };
+
+    uucd = callPackage ../development/ocaml-modules/uucd { };
+    uunf = callPackage ../development/ocaml-modules/uunf { };
+    uutf = callPackage ../development/ocaml-modules/uutf { };
+    xmlm = callPackage ../development/ocaml-modules/xmlm { };
 
     yojson = callPackage ../development/ocaml-modules/yojson { };
 
@@ -6164,6 +6187,8 @@ let
 
   sfml_git = callPackage ../development/libraries/sfml { };
 
+  skalibs = callPackage ../development/libraries/skalibs { };
+
   slang = callPackage ../development/libraries/slang { };
 
   slibGuile = callPackage ../development/libraries/slib {
@@ -6844,6 +6869,8 @@ let
 
   miniHttpd = callPackage ../servers/http/mini-httpd {};
 
+  mlmmj = callPackage ../servers/mail/mlmmj { };
+
   myserver = callPackage ../servers/http/myserver { };
 
   nginx = callPackage ../servers/http/nginx {
@@ -6923,7 +6950,11 @@ let
 
   nagiosPluginsOfficial = callPackage ../servers/monitoring/nagios/plugins/official-2.x.nix { };
 
+  neo4j = callPackage ../servers/nosql/neo4j { };
+
   net_snmp = callPackage ../servers/monitoring/net-snmp { };
+
+  riemann = callPackage ../servers/monitoring/riemann { };
 
   oidentd = callPackage ../servers/identd/oidentd { };
 
@@ -6972,6 +7003,8 @@ let
   rethinkdb = callPackage ../servers/nosql/rethinkdb { };
 
   rippled = callPackage ../servers/rippled { };
+
+  s6 = callPackage ../servers/s6 { };
 
   spamassassin = callPackage ../servers/mail/spamassassin {
     inherit (perlPackages) HTMLParser NetDNS NetAddrIP DBFile
@@ -7039,7 +7072,7 @@ let
 
   xorg = recurseIntoAttrs (import ../servers/x11/xorg/default.nix {
     inherit clangStdenv fetchurl fetchgit fetchpatch stdenv pkgconfig intltool freetype fontconfig
-      libxslt expat libpng zlib perl mesa_drivers
+      libxslt expat libpng zlib perl mesa_drivers spice_protocol
       dbus libuuid openssl gperf m4
       autoconf automake libtool xmlto asciidoc flex bison python mtdev pixman;
     mesa = mesa_noglu;
@@ -7987,6 +8020,8 @@ let
 
   eb-garamond = callPackage ../data/fonts/eb-garamond { };
 
+  fira = callPackage ../data/fonts/fira { };
+
   freefont_ttf = callPackage ../data/fonts/freefont-ttf { };
 
   freepats = callPackage ../data/misc/freepats { };
@@ -8242,7 +8277,9 @@ let
       inherit (gnome) libglade;
   };
 
-  calibre = callPackage ../applications/misc/calibre { };
+  calibre = callPackage ../applications/misc/calibre {
+    inherit (pythonPackages) pyqt5 sip_4_16;
+  };
 
   camlistore = callPackage ../applications/misc/camlistore { };
 
@@ -8715,6 +8752,8 @@ let
   flashplayer = callPackage ../applications/networking/browsers/mozilla-plugins/flashplayer-11 {
     debug = config.flashplayer.debug or false;
   };
+
+  fluxbox = callPackage ../applications/window-managers/fluxbox { };
 
   freecad = callPackage ../applications/graphics/freecad {
     opencascade = opencascade_6_5;
@@ -9330,8 +9369,11 @@ let
       cursesSupport = true;
     };
 
-    inherit gettext highline iconv locale lockfile rmail_sup
-      text trollop unicode xapian_ruby which;
+    inherit gettext highline iconv locale lockfile
+      text trollop xapian_ruby which;
+
+    rmail_sup = ""; # missing
+    unicode = "";
 
     # See https://github.com/NixOS/nixpkgs/issues/1804 and
     # https://github.com/NixOS/nixpkgs/issues/2146
@@ -9340,12 +9382,11 @@ let
         dontPatchShebangs = 1;
       }
     );
-
-    chronic      = chronic_0_9_1;
+    chronic      = chronic;
     gpgme        = ruby_gpgme;
-    mime_types   = mime_types_1_25;
+    mime_types   = mime_types;
     ncursesw_sup = ruby_ncursesw_sup;
-    rake         = rubyLibs.rake_10_1_0;
+    rake         = rake;
   };
 
   synfigstudio = callPackage ../applications/graphics/synfigstudio { };
@@ -9401,6 +9442,10 @@ let
   nvi = callPackage ../applications/editors/nvi { };
 
   nvpy = callPackage ../applications/editors/nvpy { };
+
+  obconf = callPackage ../tools/X11/obconf {
+    inherit (gnome) libglade;
+  };
 
   ocrad = callPackage ../applications/graphics/ocrad { };
 
@@ -9951,6 +9996,8 @@ let
   };
 
   vwm = callPackage ../applications/window-managers/vwm { };
+
+  vym = callPackage ../applications/misc/vym { };
 
   w3m = callPackage ../applications/networking/browsers/w3m {
     graphicsSupport = false;
@@ -10842,6 +10889,9 @@ let
   liblbfgs = callPackage ../development/libraries/science/math/liblbfgs { };
 
   openblas = callPackage ../development/libraries/science/math/openblas { };
+  openblas_0_2_10 = callPackage ../development/libraries/science/math/openblas/0.2.10.nix { 
+    liblapack = liblapack_3_5_0;
+  };
 
   mathematica = callPackage ../applications/science/math/mathematica { };
 
@@ -11113,6 +11163,8 @@ let
 
   ekiga = newScope pkgs.gnome ../applications/networking/instant-messengers/ekiga { };
 
+  emulationstation = callPackage ../misc/emulators/emulationstation { };
+
   electricsheep = callPackage ../misc/screensavers/electricsheep { };
 
   fakenes = callPackage ../misc/emulators/fakenes { };
@@ -11376,6 +11428,8 @@ let
   texLiveModerntimeline = builderDefsPackage (import ../tools/typesetting/tex/texlive/moderntimeline.nix) {
     inherit texLive unzip;
   };
+
+  thermald = callPackage ../tools/system/thermald { };
 
   thinkfan = callPackage ../tools/system/thinkfan { };
 

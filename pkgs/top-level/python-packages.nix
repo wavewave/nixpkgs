@@ -2876,11 +2876,11 @@ rec {
 
   django_1_6 = buildPythonPackage rec {
     name = "Django-${version}";
-    version = "1.6.3";
+    version = "1.6.6";
 
     src = fetchurl {
       url = "http://www.djangoproject.com/m/releases/1.6/${name}.tar.gz";
-      sha256 = "1wdqb2x0w0c10annbyz7rrrgrv9mpa9f8pz8006lf2csix33r7bd";
+      sha256 = "143yp984n8a2bs1dflxjp1s7skmji0cwkw05s9ikbfikwmabsv2k";
     };
 
     # error: invalid command 'test'
@@ -2894,11 +2894,11 @@ rec {
 
   django_1_5 = buildPythonPackage rec {
     name = "Django-${version}";
-    version = "1.5.6";
+    version = "1.5.9";
 
     src = fetchurl {
       url = "http://www.djangoproject.com/m/releases/1.5/${name}.tar.gz";
-      sha256 = "1bxzz71sfvh0zgdzv4x3wdr4ffzd5cfnvq7iq2g1i282sacwnzwv";
+      sha256 = "1lm0pa6m9f4cd6pv239lqj32z1snf8xjbvlbh8bqihs6a1f51kj7";
     };
 
     # error: invalid command 'test'
@@ -2912,11 +2912,11 @@ rec {
 
   django_1_4 = buildPythonPackage rec {
     name = "Django-${version}";
-    version = "1.4.11";
+    version = "1.4.14";
 
     src = fetchurl {
       url = "http://www.djangoproject.com/m/releases/1.4/${name}.tar.gz";
-      sha256 = "00f2jlls3fhddrg7q4sjkwj6dmclh28n0vqm1m7kzcq5fjrxh6a8";
+      sha256 = "173ci9ml2vs1z2x51wahssfn8mrmhd02varmg9kibm8z460svvc1";
     };
 
     # error: invalid command 'test'
@@ -5602,14 +5602,14 @@ rec {
 
 
   psycopg2 = buildPythonPackage rec {
-    name = "psycopg2-2.5.2";
+    name = "psycopg2-2.5.3";
 
     # error: invalid command 'test'
     doCheck = false;
 
     src = fetchurl {
       url = "https://pypi.python.org/packages/source/p/psycopg2/${name}.tar.gz";
-      sha256 = "0bmxlmi9k995n6pz16awjaap0y02y1v2d31jbxhkqv510f3jsf2h";
+      sha256 = "02h33barxigsczpympnwa0yvw9hgdv8d63bxm5x251ri26xz6b9s";
     };
 
     propagatedBuildInputs = [ pkgs.postgresql ];
@@ -8248,6 +8248,26 @@ rec {
     };
   });
 
+  pyuv = buildPythonPackage rec {
+    name = "pyuv-0.11.5";
+
+    src = fetchurl {
+      url = "https://github.com/saghul/pyuv/archive/${name}.tar.gz";
+      sha256 = "c251952cb4e54c92ab0e871decd13cf73d11ca5dba9f92962de51d12e3a310a9";
+    };
+
+    patches = [ ../development/python-modules/pyuv-external-libuv.patch ];
+
+    buildInputs = [ pkgs.libuvVersions.v0_11_29 ];
+
+    meta = {
+      description = "Python interface for libuv";
+      homepage = https://github.com/saghul/pyuv;
+      repositories.git = git://github.com/saghul/pyuv.git;
+      license = licenses.mit;
+    };
+  };
+
   virtualenv = buildPythonPackage rec {
     name = "virtualenv-1.11.6";
     src = fetchurl {
@@ -8438,13 +8458,17 @@ rec {
 
 
   webtest = buildPythonPackage rec {
-    version = "2.0.11";
+    version = "2.0.15";
     name = "webtest-${version}";
 
     src = fetchurl {
       url = "http://pypi.python.org/packages/source/W/WebTest/WebTest-${version}.zip";
-      md5 = "e51da21da8815cef07f543d8688effea";
+      md5 = "49314bdba23f4d0bd807facb2a6d3f90";
     };
+    
+    preConfigure = ''
+      substituteInPlace setup.py --replace "nose<1.3.0" "nose"
+    '';
 
     # XXX: skipping two tests fails in python2.6
     doCheck = ! isPy26;
@@ -9063,12 +9087,14 @@ rec {
 
   zope_testing = buildPythonPackage rec {
     name = "zope.testing-${version}";
-    version = "4.1.2";
+    version = "4.1.3";
 
     src = fetchurl {
-      url = "http://pypi.python.org/packages/source/z/zope.testing/${name}.zip";
-      md5 = "01c30c342c6a18002a762bd5d320a6e9";
+      url = "http://pypi.python.org/packages/source/z/zope.testing/${name}.tar.gz";
+      md5 = "6c73c5b668a67fdc116a25b884058ed9";
     };
+    
+    doCheck = !python.isPypy;
 
     propagatedBuildInputs = [ zope_interface zope_exceptions zope_location ];
 
@@ -9685,11 +9711,11 @@ rec {
 
   libvirt = pkgs.stdenv.mkDerivation rec {
     name = "libvirt-python-${version}";
-    version = "1.2.5";
+    version = "1.2.7";
 
     src = fetchurl {
       url = "http://libvirt.org/sources/python/${name}.tar.gz";
-      sha256 = "0r0v48nkkxfagckizbcf67xkmyd1bnq36d30b58zmhvl0abryz7p";
+      sha256 = "0wg0pnvrwfjdl8haxr2dyfhdasddq97zy6l27xwrvd1hnh1394f1";
     };
 
     buildInputs = [ python pkgs.pkgconfig pkgs.libvirt lxml ];

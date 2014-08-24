@@ -100,6 +100,7 @@
   ./services/databases/monetdb.nix
   ./services/databases/mongodb.nix
   ./services/databases/mysql.nix
+  ./services/databases/neo4j.nix 
   ./services/databases/openldap.nix
   ./services/databases/postgresql.nix
   ./services/databases/redis.nix
@@ -142,6 +143,7 @@
   ./services/mail/dovecot.nix
   ./services/mail/freepops.nix
   ./services/mail/mail.nix
+  ./services/mail/mlmmj.nix
   ./services/mail/opensmtpd.nix
   ./services/mail/postfix.nix
   ./services/mail/spamassassin.nix
@@ -159,6 +161,7 @@
   ./services/misc/nix-ssh-serve.nix
   ./services/misc/rippled.nix
   ./services/misc/rogue.nix
+  ./services/misc/siproxd.nix
   ./services/misc/svnserve.nix
   ./services/misc/synergy.nix
   ./services/monitoring/apcupsd.nix
@@ -167,6 +170,8 @@
   ./services/monitoring/monit.nix
   ./services/monitoring/munin.nix
   ./services/monitoring/nagios.nix
+  ./services/monitoring/riemann.nix
+  ./services/monitoring/riemann-dash.nix
   ./services/monitoring/smartd.nix
   ./services/monitoring/statsd.nix
   ./services/monitoring/systemhealth.nix
@@ -293,6 +298,7 @@
   ./services/x11/window-managers/awesome.nix
   #./services/x11/window-managers/compiz.nix
   ./services/x11/window-managers/default.nix
+  ./services/x11/window-managers/fluxbox.nix
   ./services/x11/window-managers/icewm.nix
   ./services/x11/window-managers/bspwm.nix
   ./services/x11/window-managers/metacity.nix
