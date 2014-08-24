@@ -5,11 +5,11 @@
 }:
 
 stdenv.mkDerivation rec {
-  name = "nix-1.8pre3766_809ca33";
+  name = "nix-1.8pre3768_3f0a4bf";
 
   src = fetchurl {
-    url = "http://hydra.nixos.org/build/13584170/download/5/${name}.tar.xz";
-    sha256 = "e6d91e73aabf8e8912f9701bf87b66089c197c5b8c8fbcc1707b888c88b96dfd";
+    url = "http://hydra.nixos.org/build/13619451/download/5/${name}.tar.xz";
+    sha256 = "1dmxbc8hv2di2hy7s7xfj5bbyw2gz58hwf9kj1prb171cy8jksf1";
   };
 
   nativeBuildInputs = [ perl pkgconfig ];
@@ -24,6 +24,7 @@ stdenv.mkDerivation rec {
   postUnpack =
     '' export CPATH="${bzip2}/include"
        export LIBRARY_PATH="${bzip2}/lib"
+       export CXXFLAGS="-O3 -Wno-error=reserved-user-defined-literal"
     '';
 
   configureFlags =
@@ -68,9 +69,6 @@ stdenv.mkDerivation rec {
   enableParallelBuilding = true;
 
   meta = {
-    # due to builder args bug; see
-    # https://github.com/NixOS/nix/commit/b224ac15201c57b40ea855f5a98b1bd166c1c7f6
-    broken = stdenv.isDarwin;
     description = "The Nix Deployment System";
     homepage = http://nixos.org/;
     license = stdenv.lib.licenses.lgpl2Plus;
