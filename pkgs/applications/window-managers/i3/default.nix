@@ -1,6 +1,6 @@
 { fetchurl, stdenv, which, pkgconfig, makeWrapper, libxcb, xcbutilkeysyms
 , xcbutil, xcbutilwm, libstartup_notification, libX11, pcre, libev, yajl
-, xcb-util-cursor, coreutils, perl, pango, perlPackages, xdummy }:
+, xcb-util-cursor, coreutils, perl, pango, perlPackages, xdummy}:
 
 stdenv.mkDerivation rec {
   name = "i3-${version}";
@@ -24,11 +24,12 @@ stdenv.mkDerivation rec {
 
   doCheck = stdenv.system == "x86_64-linux";
 
-  checkPhase = ''
+  checkPhase = if stdenv.system == "x86_64-linux" then
+  ''
     ln -sf "${xdummy}/bin/xdummy" testcases/Xdummy
     (cd testcases && perl complete-run.pl -p 1)
     ! grep -q '^not ok' testcases/latest/complete-run.log
-  '';
+  '' else '''';
 
   configurePhase = "makeFlags=PREFIX=$out";
 
