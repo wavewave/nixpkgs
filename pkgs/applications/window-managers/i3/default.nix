@@ -24,12 +24,12 @@ stdenv.mkDerivation rec {
 
   doCheck = stdenv.system == "x86_64-linux";
 
-  checkPhase = if stdenv.system == "x86_64-linux" then
+  checkPhase = stdenv.lib.optionalString (stdenv.system == "x86_64-linux")
   ''
     ln -sf "${xdummy}/bin/xdummy" testcases/Xdummy
     (cd testcases && perl complete-run.pl -p 1)
     ! grep -q '^not ok' testcases/latest/complete-run.log
-  '' else '''';
+  '';
 
   configurePhase = "makeFlags=PREFIX=$out";
 
