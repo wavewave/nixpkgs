@@ -13,7 +13,7 @@ import ../generic rec {
 
   system = stdenv.system;
 
-  gcc = import ../../build-support/gcc-wrapper {
+  gcc = import ../../build-support/cc-wrapper {
     nativeTools = false;
     nativePrefix = stdenv.lib.optionalString stdenv.isSunOS "/usr";
     nativeLibc = true;
