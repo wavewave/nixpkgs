@@ -8,6 +8,7 @@
 { name ? "", stdenv, nativeTools, nativeLibc, nativePrefix ? ""
 , gcc ? null, libc ? null, binutils ? null, coreutils ? null, shell ? stdenv.shell
 , zlib ? null, extraPackages ? []
+, libcxx ? null, libcxxabi ? null, isClang ? false
 }:
 
 with stdenv.lib;
@@ -33,7 +34,7 @@ stdenv.mkDerivation {
 
   preferLocalBuild = true;
 
-  inherit gcc shell;
+  inherit gcc shell libcxx libcxxabi;
   libc = if nativeLibc then null else libc;
   binutils = if nativeTools then null else binutils;
   # The wrapper scripts use 'cat', so we may need coreutils.
@@ -86,7 +87,7 @@ stdenv.mkDerivation {
     ''
 
     + (if nativeTools then ''
-      gccPath="${nativePrefix}/bin"
+      gccPath="${if stdenv.isDarwin then gcc else nativePrefix}/bin"
       ldPath="${nativePrefix}/bin"
     '' else ''
       echo $gcc > $out/nix-support/orig-gcc
@@ -112,6 +113,13 @@ stdenv.mkDerivation {
         gnatCFlags="-aI$basePath/adainclude -aO$basePath/adalib"
         echo "$gnatCFlags" > $out/nix-support/gnat-cflags
       ''}
+
+      if [ -e $out/bin/clang ]; then
+        # Need files like crtbegin.o from gcc
+        # It's unclear if these will ever be provided by an LLVM project
+        gccCFlags="$gccCFlags -B$basePath"
+        gccCFlags="$gccCFlags -isystem$clang/lib/clang/$gccVersion/include"
+      fi
 
       echo "$gccLDFlags" > $out/nix-support/gcc-ldflags
       echo "$gccCFlags" > $out/nix-support/gcc-cflags
@@ -204,11 +212,11 @@ stdenv.mkDerivation {
       cp -p ${./utils.sh} $out/nix-support/utils.sh
 
       if [ -e $out/bin/clang ]; then
-        echo 'export CC; : ''${CC:=clang}' >> $out/nix-support/setup-hook
+        echo 'export CC=clang' >> $out/nix-support/setup-hook
       fi
 
       if [ -e $out/bin/clang++ ]; then
-        echo 'export CXX; : ''${CXX:=clang++}' >> $out/nix-support/setup-hook
+        echo 'export CXX=clang++' >> $out/nix-support/setup-hook
       fi
     '';
 
