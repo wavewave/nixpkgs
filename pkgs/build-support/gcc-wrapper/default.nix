@@ -8,7 +8,7 @@
 { name ? "", stdenv, nativeTools, nativeLibc, nativePrefix ? ""
 , gcc ? null, libc ? null, binutils ? null, coreutils ? null, shell ? stdenv.shell
 , zlib ? null, extraPackages ? []
-, libcxx ? null, libcxxabi ? null, isClang ? false
+, libcxx ? null, libcxxabi ? null
 }:
 
 with stdenv.lib;
