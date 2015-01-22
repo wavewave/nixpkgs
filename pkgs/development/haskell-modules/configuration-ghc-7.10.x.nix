@@ -82,4 +82,14 @@ self: super: {
   # https://github.com/ndmitchell/extra/issues/4
   extra = dontCheck super.extra;
 
+  # encoding fails to build on GHC 7.10 because of the Applicative-Monad Proposal
+  encoding = overrideCabal super.encoding (drv: {
+    sha256 = null;
+    src = pkgs.fetchdarcs {
+      url = http://static.ryantrinkle.com/encoding;
+      rev = "0.7.0.3";
+      sha256 = "1ssg9galkpbig05q5vqhqzljk29dg9z9hs02aqjs2ljqqxx1xnjf";
+    };
+    version = "0.7.0.3";
+  });
 }
