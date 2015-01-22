@@ -92,4 +92,15 @@ self: super: {
     };
     version = "0.7.0.3";
   });
+
+  # intervals fails to build on GHC 7.10 due to 'null' being added to Foldable
+  intervals = overrideCabal super.intervals (drv: {
+    sha256 = null;
+    src = pkgs.fetchgit {
+      url = git://github.com/pacak/intervals;
+      rev = "9f0eb8d0278745e0a46580d379dab57de8c9d7a0";
+      sha256 = "3da3c33ef57afc488f03c8b8a52925c8c6bf4cf8aac854da48dd565c7b61384d";
+    };
+    version = "0.7.0.2";
+  });
 }
