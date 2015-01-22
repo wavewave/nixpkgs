@@ -4591,7 +4591,7 @@ let
       url = "https://pypi.python.org/packages/source/g/gevent/${name}.tar.gz";
       sha256 = "0hyzfb0gcx9pm5c2igan8y57hqy2wixrwvdjwsaivxsqs0ay49s6";
     };
- 
+
     patches = [ ../development/python-modules/gevent_sslwrap.patch ];
 
     buildInputs = with self; [ pkgs.libev ];
@@ -7377,7 +7377,7 @@ let
       url = "http://pypi.python.org/packages/source/P/PrettyTable/${name}.tar.bz2";
       sha1 = "ad346a18d92c1d95f2295397c7a8a4f489e48851";
     };
-        
+
     buildInputs = [ pkgs.glibcLocales ];
 
     preCheck = ''
@@ -7582,6 +7582,46 @@ let
       description = "Python bindings for PortAudio";
       homepage = "http://people.csail.mit.edu/hubert/pyaudio/";
       license = stdenv.lib.licenses.mit;
+    };
+  };
+
+  vobject = buildPythonPackage rec {
+    version = "0.8.1c";
+    name = "vobject-${version}";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/v/vobject/vobject-${version}.tar.gz";
+      sha256 = "1xanqn7rn96841s3lim5lnx5743gc4kyfg4ggj1ys5r0gw8i6har";
+    };
+
+    propagatedBuildInputs = with self; [ dateutil ];
+
+    meta = with stdenv.lib; {
+      description = "Module for reading vCard and vCalendar files";
+      homepage = http://vobject.skyhouseconsulting.com/;
+      license = licenses.asl20;
+      maintainers = [ maintainers.DamienCassou ];
+    };
+  };
+
+  pycarddav = buildPythonPackage rec {
+    version = "0.7.0";
+    name = "pycarddav-${version}";
+
+    src = pkgs.fetchurl {
+      url = "https://pypi.python.org/packages/source/p/pyCardDAV/pyCardDAV-${version}.tar.gz";
+      sha256 = "0avkrcpisfvhz103v7vmq2jd83hvmpqrb4mlbx6ikkk1wcvclsx8";
+    };
+
+    disabled = isPy3k;
+
+    propagatedBuildInputs = with self; [ sqlite3 vobject lxml requests urwid pyxdg ];
+
+    meta = with stdenv.lib; {
+      description = "Command-line interface carddav client";
+      homepage = http://lostpackets.de/pycarddav;
+      license = licenses.mit;
+      maintainers = [ maintainers.DamienCassou ];
     };
   };
 
@@ -13144,7 +13184,7 @@ let
     propagatedBuildInputs = with self; [ dateutil ];
 
     preInstall = stdenv.lib.optionalString stdenv.isDarwin ''
-      sed -i 's|^\([ ]*\)self.bin_path.*$|\1self.bin_path = "${pkgs.rubyLibs.terminal_notifier}/bin/terminal-notifier"|' build/lib/pync/TerminalNotifier.py
+      sed -i 's|^\([ ]*\)self.bin_path.*$|\1self.bin_path = "${pkgs.rubyPackages.terminal_notifier}/bin/terminal-notifier"|' build/lib/pync/TerminalNotifier.py
     '';
 
     meta = with stdenv.lib; {
