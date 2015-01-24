@@ -252,6 +252,8 @@ stdenv.mkDerivation ({
     env = stdenv.mkDerivation {
       name = "interactive-${optionalString hasActiveLibrary "haskell-"}${pname}-${version}-environment";
       nativeBuildInputs = [ ghcEnv systemBuildInputs ];
+      LANG = "en_US.UTF-8";
+      LOCALE_ARCHIVE = optionalString stdenv.isLinux "${glibcLocales}/lib/locale/locale-archive";
       shellHook = ''
         export NIX_GHC="${ghcEnv}/bin/ghc"
         export NIX_GHCPKG="${ghcEnv}/bin/ghc"
@@ -287,11 +289,12 @@ stdenv.mkDerivation ({
 // optionalAttrs (postConfigure != "")  { inherit postConfigure; }
 // optionalAttrs (preBuild != "")       { inherit preBuild; }
 // optionalAttrs (postBuild != "")      { inherit postBuild; }
-// optionalAttrs (preInstall != "")     { inherit preInstall; }
-// optionalAttrs (postInstall != "")    { inherit postInstall; }
+// optionalAttrs (doCheck)              { inherit doCheck; }
 // optionalAttrs (checkPhase != "")     { inherit checkPhase; }
 // optionalAttrs (preCheck != "")       { inherit preCheck; }
 // optionalAttrs (postCheck != "")      { inherit postCheck; }
+// optionalAttrs (preInstall != "")     { inherit preInstall; }
+// optionalAttrs (postInstall != "")    { inherit postInstall; }
 // optionalAttrs (preFixup != "")       { inherit preFixup; }
 // optionalAttrs (postFixup != "")      { inherit postFixup; }
 )

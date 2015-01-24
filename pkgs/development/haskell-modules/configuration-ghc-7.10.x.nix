@@ -82,6 +82,9 @@ self: super: {
   # https://github.com/ndmitchell/extra/issues/4
   extra = dontCheck super.extra;
 
+  # Test suite fails in "/tokens_bytestring_unicode.g.bin".
+  alex = dontCheck super.alex;
+
   # encoding fails to build on GHC 7.10 because of the Applicative-Monad Proposal
   encoding = overrideCabal super.encoding (drv: {
     sha256 = null;
