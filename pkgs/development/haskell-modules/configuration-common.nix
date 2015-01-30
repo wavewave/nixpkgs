@@ -94,11 +94,17 @@ self: super: {
   markdown-unlit = dontHaddock super.markdown-unlit;
   network-conduit = dontHaddock super.network-conduit;
   shakespeare-text = dontHaddock super.shakespeare-text;
+  wai-test = dontHaddock super.wai-test;
 
   # jailbreak doesn't get the job done because the Cabal file uses conditionals a lot.
   darcs = overrideCabal super.darcs (drv: {
     doCheck = false;            # The test suite won't even start.
     patchPhase = "sed -i -e 's|random.*==.*|random|' -e 's|text.*>=.*,|text,|' -e s'|terminfo == .*|terminfo|' darcs.cabal";
+  });
+
+  # disable building double-conversion since it requires libstdc++
+  blaze-textual = overrideCabal (dontCheck super.blaze-textual) (drv: {
+    patchPhase = "sed -i '/double-conversion/d' blaze-textual.cabal";
   });
 
   # The test suite imposes too narrow restrictions on the version of
@@ -344,6 +350,7 @@ self: super: {
   webdriver = dontCheck super.webdriver;
   xcffib = dontCheck super.xcffib;
   xsd = dontCheck super.xsd;
+  yesod-pagination = dontCheck super.yesod-pagination;
 
   # The build fails with the most recent version of c2hs.
   ncurses = super.ncurses.override { c2hs = self.c2hs_0_20_1; };

@@ -69,6 +69,8 @@ self: super: {
   # old haddock can't handle reflection.cabal's code blocks
   reflection = dontHaddock (addBuildDepend super.reflection self.tagged);
 
+  ghc-mod = addBuildDepend super.ghc-mod super.convertible;
+
 } // {
 
   # Not on Hackage.
