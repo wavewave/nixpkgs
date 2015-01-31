@@ -1,9 +1,9 @@
-{ stdenv, appleDerivation, Libinfo, configd, libnotify, mDNSResponder }:
+{ stdenv, appleDerivation, Libinfo, configd, mDNSResponder }:
 
 appleDerivation {
   phases = [ "unpackPhase" "buildPhase" "installPhase" ];
 
-  buildInputs = [ Libinfo configd libnotify mDNSResponder ];
+  buildInputs = [ Libinfo configd mDNSResponder ];
 
   buildPhase = ''
     cc -I. -c dns_util.c
