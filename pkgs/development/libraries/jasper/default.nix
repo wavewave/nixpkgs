@@ -1,4 +1,4 @@
-{stdenv, fetchurl, unzip, xlibs, libjpeg}:
+{stdenv, fetchurl, unzip, libjpeg}:
 
 stdenv.mkDerivation rec {
   name = "jasper-1.900.1";
@@ -14,11 +14,17 @@ stdenv.mkDerivation rec {
     ./jasper-CVE-2014-9029.diff
   ];
 
+  postPatch = ''
+    substituteInPlace ./configure \
+      --replace "gcc -print-file-name=." "cc -print-file-name=." \
+      --replace "gcc -dumpversion" "cc -dumpversion"
+  '';
+
   nativeBuildInputs = [unzip];
   propagatedBuildInputs = [ libjpeg ];
 
   configureFlags = "--enable-shared";
-  
+
   meta = {
     homepage = https://www.ece.uvic.ca/~frodo/jasper/;
     description = "JPEG2000 Library";
