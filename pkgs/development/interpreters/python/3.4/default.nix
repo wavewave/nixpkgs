@@ -10,6 +10,7 @@
 , sqlite
 , tcl, tk
 , zlib
+, configd
 , callPackage
 , self
 }:
@@ -40,13 +41,15 @@ stdenv.mkDerivation {
 
   NIX_LDFLAGS = stdenv.lib.optionalString stdenv.isLinux "-lgcc_s";
 
+  buildInputs = [ configd ];
+
   preConfigure = ''
     for i in /usr /sw /opt /pkg; do	# improve purity
       substituteInPlace ./setup.py --replace $i /no-such-path
     done
+    substituteInPlace ./configure --replace '`/usr/bin/arch`' 'i386'
     ${optionalString stdenv.isDarwin ''
-       export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -msse2"
-       export MACOSX_DEPLOYMENT_TARGET=10.6
+       export MACOSX_DEPLOYMENT_TARGET=10.8
      ''}
 
     configureFlagsArray=( --enable-shared --with-threads

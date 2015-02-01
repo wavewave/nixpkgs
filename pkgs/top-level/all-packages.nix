@@ -4344,6 +4344,7 @@ let
   };
   python34 = hiPrio (callPackage ../development/interpreters/python/3.4 {
     self = python34;
+    inherit (darwin) configd;
   });
   pypy = callPackage ../development/interpreters/pypy/2.4 {
     self = pypy;
