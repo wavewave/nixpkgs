@@ -47,10 +47,9 @@ stdenv.mkDerivation {
     for i in /usr /sw /opt /pkg; do	# improve purity
       substituteInPlace ./setup.py --replace $i /no-such-path
     done
+
     substituteInPlace ./configure --replace '`/usr/bin/arch`' 'i386'
-    ${optionalString stdenv.isDarwin ''
-       export MACOSX_DEPLOYMENT_TARGET=10.8
-     ''}
+    ${optionalString stdenv.isDarwin "export MACOSX_DEPLOYMENT_TARGET=10.8"}
 
     configureFlagsArray=( --enable-shared --with-threads
                           CPPFLAGS="${concatStringsSep " " (map (p: "-I${p}/include") buildInputs)}"
