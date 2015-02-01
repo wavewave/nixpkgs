@@ -26,7 +26,6 @@ in rec {
     export NIX_IGNORE_LD_THROUGH_GCC=1
     stripAllFlags=" " # the Darwin "strip" command doesn't know "-s"
     export MACOSX_DEPLOYMENT_TARGET=10.7
-    export NIX_LDFLAGS_BEFORE+=" -macosx_version_min $MACOSX_DEPLOYMENT_TARGET "
     export SDKROOT=
     export CMAKE_OSX_ARCHITECTURES=x86_64
   '';

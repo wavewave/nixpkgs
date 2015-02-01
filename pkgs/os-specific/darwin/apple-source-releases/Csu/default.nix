@@ -9,6 +9,10 @@ appleDerivation {
       --replace "/bin/" ""
   '';
 
+  # Mac OS didn't support rpaths back before 10.5, and this package intentionally builds stubs targeting versions prior to that
+  NIX_DONT_SET_RPATH = "1";
+  NIX_NO_SELF_RPATH = "1";
+
   installPhase = ''
     export DSTROOT=$out
     make install
