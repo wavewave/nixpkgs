@@ -238,7 +238,7 @@ let
   # just the plain stdenv.
   stdenv_32bit = lowPrio (
     if system == "x86_64-linux" then
-      overrideGCC stdenv gcc48_multi
+      overrideCC stdenv gcc48_multi
     else
       stdenv);
 
@@ -658,6 +658,8 @@ let
 
   boost-build = callPackage ../development/tools/boost-build { };
 
+  boot = callPackage ../development/tools/build-managers/boot { };
+
   bootchart = callPackage ../tools/system/bootchart { };
 
   boxfs = callPackage ../tools/filesystems/boxfs { };
@@ -687,6 +689,8 @@ let
   consul_ui = consul.ui;
 
   corosync = callPackage ../servers/corosync { };
+
+  cherrytree = callPackage ../applications/misc/cherrytree { };
 
   chntpw = callPackage ../tools/security/chntpw { };
 
@@ -729,6 +733,8 @@ let
   fasd = callPackage ../tools/misc/fasd { };
 
   fop = callPackage ../tools/typesetting/fop { };
+
+  filter_audio = callPackage ../development/libraries/filter_audio { };
 
   gist = callPackage ../tools/text/gist { };
 
@@ -938,7 +944,7 @@ let
 
   convmv = callPackage ../tools/misc/convmv { };
 
-  cool-old-term = callPackage ../applications/misc/cool-old-term { };
+  cool-retro-term = callPackage ../applications/misc/cool-retro-term { };
 
   coreutils = callPackage ../tools/misc/coreutils
     {
@@ -2381,7 +2387,9 @@ let
 
   rkflashtool = callPackage ../tools/misc/rkflashtool { };
 
-  rmlint = callPackage ../tools/misc/rmlint {};
+  rmlint = callPackage ../tools/misc/rmlint {
+    inherit (pythonPackages) sphinx;
+  };
 
   rng_tools = callPackage ../tools/security/rng-tools { };
 
@@ -2547,6 +2555,8 @@ let
 
   sshuttle = callPackage ../tools/security/sshuttle { };
 
+  sstp = callPackage ../tools/networking/sstp {};
+
   sudo = callPackage ../tools/security/sudo { };
 
   suidChroot = builderDefsPackage (import ../tools/system/suid-chroot) { };
@@ -2650,6 +2660,8 @@ let
 
   tiny8086 = callPackage ../applications/virtualization/8086tiny { };
 
+  tlsdate = callPackage ../tools/networking/tlsdate { };
+
   tmpwatch = callPackage ../tools/misc/tmpwatch  { };
 
   tmux = callPackage ../tools/misc/tmux { };
@@ -2665,7 +2677,7 @@ let
   torbutton = callPackage ../tools/security/torbutton { };
 
   torbrowser = callPackage ../tools/security/tor/torbrowser.nix {
-    stdenv = overrideGCC stdenv gcc49;
+    stdenv = overrideCC stdenv gcc49;
   };
 
   torsocks = callPackage ../tools/security/tor/torsocks.nix { };
@@ -3095,11 +3107,11 @@ let
 
   ccl = callPackage ../development/compilers/ccl { };
 
-  clang = wrapClang llvmPackages.clang;
+  clang = wrapCC llvmPackages.clang;
 
-  clang_35 = wrapClang llvmPackages_35.clang;
-  clang_34 = wrapClang llvmPackages_34.clang;
-  clang_33 = wrapClang (clangUnwrapped llvm_33 ../development/compilers/llvm/3.3/clang.nix);
+  clang_35 = wrapCC llvmPackages_35.clang;
+  clang_34 = wrapCC llvmPackages_34.clang;
+  clang_33 = wrapCC (clangUnwrapped llvm_33 ../development/compilers/llvm/3.3/clang.nix);
 
   clangAnalyzer = callPackage ../development/tools/analysis/clang-analyzer {
     clang = clang_34;
@@ -3112,8 +3124,8 @@ let
 
   clangSelf = clangWrapSelf llvmPackagesSelf.clang;
 
-  clangWrapSelf = build: (import ../build-support/clang-wrapper) {
-    clang = build;
+  clangWrapSelf = build: (import ../build-support/cc-wrapper) {
+    cc = build;
     stdenv = clangStdenv;
     libc = glibc;
     binutils = binutils;
@@ -3124,8 +3136,8 @@ let
   };
 
   #Use this instead of stdenv to build with clang
-  clangStdenv = if stdenv.isDarwin then stdenv else lowPrio (stdenvAdapters.overrideGCC stdenv clang);
-  libcxxStdenv = stdenvAdapters.overrideGCC stdenv (clangWrapSelf llvmPackages.clang);
+  clangStdenv = if stdenv.isDarwin then stdenv else lowPrio (stdenvAdapters.overrideCC stdenv clang);
+  libcxxStdenv = stdenvAdapters.overrideCC stdenv (clangWrapSelf llvmPackages.clang);
 
   clean = callPackage ../development/compilers/clean { };
 
@@ -3157,7 +3169,7 @@ let
 
   gccApple = throw "gccApple is no longer supported";
 
-  gcc34 = wrapGCC (import ../development/compilers/gcc/3.4 {
+  gcc34 = wrapCC (import ../development/compilers/gcc/3.4 {
     inherit fetchurl stdenv noSysDirs;
   });
 
@@ -3219,14 +3231,14 @@ let
     cross = assert crossSystem != null; crossSystem;
   };
 
-  gcc44 = lowPrio (wrapGCC (makeOverridable (import ../development/compilers/gcc/4.4) {
+  gcc44 = lowPrio (wrapCC (makeOverridable (import ../development/compilers/gcc/4.4) {
     inherit fetchurl stdenv gmp mpfr /* ppl cloogppl */
       gettext which noSysDirs;
     texinfo = texinfo4;
     profiledCompiler = true;
   }));
 
-  gcc45 = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.5 {
+  gcc45 = lowPrio (wrapCC (callPackage ../development/compilers/gcc/4.5 {
     inherit fetchurl stdenv gmp mpfr mpc libelf zlib perl
       gettext which noSysDirs;
     texinfo = texinfo4;
@@ -3249,7 +3261,7 @@ let
       else null;
   }));
 
-  gcc46 = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.6 {
+  gcc46 = lowPrio (wrapCC (callPackage ../development/compilers/gcc/4.6 {
     inherit noSysDirs;
 
     ppl = null;
@@ -3271,7 +3283,7 @@ let
     texinfo = texinfo413;
   }));
 
-  gcc48 = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.8 {
+  gcc48 = lowPrio (wrapCC (callPackage ../development/compilers/gcc/4.8 {
     inherit noSysDirs;
 
     # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
@@ -3290,14 +3302,14 @@ let
 
   gcc48_multi =
     if system == "x86_64-linux" then lowPrio (
-      wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi (gcc48.gcc.override {
-        stdenv = overrideGCC stdenv (wrapGCCWith (import ../build-support/gcc-wrapper) glibc_multi gcc.gcc);
+      wrapCCWith (import ../build-support/cc-wrapper) glibc_multi (gcc48.gcc.override {
+        stdenv = overrideCC stdenv (wrapCCWith (import ../build-support/cc-wrapper) glibc_multi gcc.gcc);
         profiledCompiler = false;
         enableMultilib = true;
       }))
     else throw "Multilib gcc not supported on ‘${system}’";
 
-  gcc48_debug = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.8 {
+  gcc48_debug = lowPrio (wrapCC (callPackage ../development/compilers/gcc/4.8 {
     stripped = false;
 
     inherit noSysDirs;
@@ -3306,7 +3318,7 @@ let
     binutilsCross = null;
   }));
 
-  gcc49 = lowPrio (wrapGCC (callPackage ../development/compilers/gcc/4.9 {
+  gcc49 = lowPrio (wrapCC (callPackage ../development/compilers/gcc/4.9 {
     inherit noSysDirs;
 
     # PGO seems to speed up compilation by gcc by ~10%, see #445 discussion
@@ -3325,7 +3337,7 @@ let
 
   gfortran = gfortran48;
 
-  gfortran48 = wrapGCC (gcc48.gcc.override {
+  gfortran48 = wrapCC (gcc48.cc.override {
     name = "gfortran";
     langFortran = true;
     langCC = false;
@@ -3335,7 +3347,7 @@ let
 
   gcj = gcj48;
 
-  gcj48 = wrapGCC (gcc48.gcc.override {
+  gcj48 = wrapCC (gcc48.cc.override {
     name = "gcj";
     langJava = true;
     langFortran = false;
@@ -3351,7 +3363,7 @@ let
 
   gnat = gnat45; # failed to make 4.6 or 4.8 build
 
-  gnat45 = wrapGCC (gcc45.gcc.override {
+  gnat45 = wrapCC (gcc45.cc.override {
     name = "gnat";
     langCC = false;
     langC = true;
@@ -3370,14 +3382,14 @@ let
 
   gccgo = gccgo48;
 
-  gccgo48 = wrapGCC (gcc48.gcc.override {
+  gccgo48 = wrapCC (gcc48.cc.override {
     name = "gccgo";
     langCC = true; #required for go.
     langC = true;
     langGo = true;
   });
 
-  ghdl = wrapGCC (import ../development/compilers/gcc/4.3 {
+  ghdl = wrapCC (import ../development/compilers/gcc/4.3 {
     inherit stdenv fetchurl gmp mpfr noSysDirs gnat;
     texinfo = texinfo4;
     name = "ghdl";
@@ -3772,6 +3784,8 @@ let
 
     config-file = callPackage ../development/ocaml-modules/config-file { };
 
+    cpdf = callPackage ../development/ocaml-modules/cpdf { };
+
     cppo = callPackage ../development/tools/ocaml/cppo { };
 
     cryptokit = callPackage ../development/ocaml-modules/cryptokit { };
@@ -4095,20 +4109,18 @@ let
 
   win32hello = callPackage ../development/compilers/visual-c++/test { };
 
-  wrapClangWith = clangWrapper: libc: baseClang: clangWrapper {
+  wrapCCWith = ccWrapper: libc: baseCC: ccWrapper {
     nativeTools = stdenv.cc.nativeTools or false;
     nativeLibc = stdenv.cc.nativeLibc or false;
     nativePrefix = stdenv.cc.nativePrefix or "";
-    clang = baseClang;
+    cc = baseCC;
     libc = libc;
-    libcxx = libcxx;
-    libcxxabi = libcxxabi;
     inherit stdenv binutils coreutils zlib;
   };
 
-  wrapClang = wrapClangWith (makeOverridable (import ../build-support/clang-wrapper)) glibc;
-
-  wrapGCCWith = gccWrapper: glibc: baseGCC: gccWrapper {
+  wrapCC = wrapCCWith (makeOverridable (import ../build-support/cc-wrapper)) glibc;
+  # legacy version, used for gnat bootstrapping
+  wrapGCC-old = baseGCC: (makeOverridable (import ../build-support/gcc-wrapper-old)) {
     nativeTools = stdenv.cc.nativeTools or false;
     nativeLibc = stdenv.cc.nativeLibc or false;
     nativePrefix = stdenv.cc.nativePrefix or "";
@@ -4116,10 +4128,6 @@ let
     libc = glibc;
     inherit stdenv binutils coreutils zlib;
   };
-
-  wrapGCC = wrapGCCWith (makeOverridable (import ../build-support/gcc-wrapper)) glibc;
-  # legacy version, used for gnat bootstrapping
-  wrapGCC-old = wrapGCCWith (makeOverridable (import ../build-support/gcc-wrapper-old)) glibc;
 
   wrapGCCCross =
     {gcc, libc, binutils, cross, shell ? "", name ? "gcc-cross-wrapper"}:
@@ -4344,6 +4352,7 @@ let
   };
   python34 = hiPrio (callPackage ../development/interpreters/python/3.4 {
     self = python34;
+    inherit (darwin) configd;
   });
   pypy = callPackage ../development/interpreters/pypy/2.4 {
     self = pypy;
@@ -4481,7 +4490,7 @@ let
 
   avrgcclibc = callPackage ../development/misc/avr-gcc-with-avr-libc {
     gcc = gcc46;
-    stdenv = overrideGCC stdenv gcc46;
+    stdenv = overrideCC stdenv gcc46;
   };
 
   avr8burnomat = callPackage ../development/misc/avr8-burn-omat { };
@@ -4538,6 +4547,8 @@ let
   ant = apacheAnt;
 
   apacheAnt = callPackage ../development/tools/build-managers/apache-ant { };
+
+  apacheKafka = callPackage ../servers/apache-kafka { };
 
   astyle = callPackage ../development/tools/misc/astyle { };
 
@@ -4637,8 +4648,8 @@ let
   #     };
   #
   ccacheWrapper = makeOverridable ({ extraConfig ? "" }:
-     wrapGCC (ccache.links extraConfig)) {};
-  ccacheStdenv = lowPrio (overrideGCC stdenv ccacheWrapper);
+     wrapCC (ccache.links extraConfig)) {};
+  ccacheStdenv = lowPrio (overrideCC stdenv ccacheWrapper);
 
   cccc = callPackage ../development/tools/analysis/cccc { };
 
@@ -4722,8 +4733,8 @@ let
   #     };
   #
   distccWrapper = makeOverridable ({ extraConfig ? "" }:
-     wrapGCC (distcc.links extraConfig)) {};
-  distccStdenv = lowPrio (overrideGCC stdenv distccWrapper);
+     wrapCC (distcc.links extraConfig)) {};
+  distccStdenv = lowPrio (overrideCC stdenv distccWrapper);
 
   distccMasquerade = if stdenv.isDarwin
     then null
@@ -5763,6 +5774,10 @@ let
 
   hunspell = callPackage ../development/libraries/hunspell { };
 
+  hunspellDicts = recurseIntoAttrs (import ../development/libraries/hunspell/dictionaries.nix {
+    inherit stdenv fetchurl unzip;
+  });
+
   hwloc = callPackage ../development/libraries/hwloc {
     inherit (xlibs) libX11;
   };
@@ -6365,11 +6380,13 @@ let
 
   libproxy = callPackage ../development/libraries/libproxy {
     stdenv = if stdenv.isDarwin
-      then overrideGCC stdenv gcc
+      then overrideCC stdenv gcc
       else stdenv;
   };
 
   libpseudo = callPackage ../development/libraries/libpseudo { };
+
+  libpst = callPackage ../development/libraries/libpst { };
 
   libpwquality = callPackage ../development/libraries/libpwquality { };
 
@@ -6463,6 +6480,7 @@ let
   libunibreak = callPackage ../development/libraries/libunibreak { };
 
   libunique = callPackage ../development/libraries/libunique/default.nix { };
+  libunique3 = callPackage ../development/libraries/libunique/3.x.nix { inherit (gnome) gtkdoc; };
 
   liburcu = callPackage ../development/libraries/liburcu { };
 
@@ -6921,6 +6939,8 @@ let
 
   qjson = callPackage ../development/libraries/qjson { };
 
+  qmltermwidget = callPackage ../development/libraries/qmltermwidget { };
+
   qoauth = callPackage ../development/libraries/qoauth { };
 
   quazip = callPackage ../development/libraries/quazip {
@@ -7371,6 +7391,8 @@ let
 
   xcb-util-cursor = callPackage ../development/libraries/xcb-util-cursor { };
 
+  xcb-util-cursor-HEAD = callPackage ../development/libraries/xcb-util-cursor/HEAD.nix { };
+
   xdo = callPackage ../tools/misc/xdo { };
 
   xineLib = callPackage ../development/libraries/xine-lib {
@@ -7649,6 +7671,8 @@ let
   pygobject3 = pythonPackages.pygobject3;
 
   pygtk = pythonPackages.pygtk;
+
+  pygtksourceview = callPackage ../development/python-modules/pygtksourceview { };
 
   pyGtkGlade = pythonPackages.pyGtkGlade;
 
@@ -9764,6 +9788,8 @@ let
 
     ess = callPackage ../applications/editors/emacs-modes/ess { };
 
+    flycheck = callPackage ../applications/editors/emacs-modes/flycheck { };
+
     flymakeCursor = callPackage ../applications/editors/emacs-modes/flymake-cursor { };
 
     gh = callPackage ../applications/editors/emacs-modes/gh { };
@@ -9794,6 +9820,8 @@ let
     jdee = callPackage ../applications/editors/emacs-modes/jdee { };
 
     js2 = callPackage ../applications/editors/emacs-modes/js2 { };
+
+    let-alist = callPackage ../applications/editors/emacs-modes/let-alist { };
 
     logito = callPackage ../applications/editors/emacs-modes/logito { };
 
@@ -9952,6 +9980,8 @@ let
   google-drive-ocamlfuse = callPackage ../applications/networking/google-drive-ocamlfuse { };
 
   google-musicmanager = callPackage ../applications/audio/google-musicmanager { };
+
+  gpa = callPackage ../applications/misc/gpa { };
 
   gpicview = callPackage ../applications/graphics/gpicview { };
 
@@ -10265,7 +10295,9 @@ let
 
   hydrogen = callPackage ../applications/audio/hydrogen { };
 
-  i3 = callPackage ../applications/window-managers/i3 { };
+  i3 = callPackage ../applications/window-managers/i3 {
+    xcb-util-cursor = if stdenv.isDarwin then xcb-util-cursor-HEAD else xcb-util-cursor;
+  };
 
   i3lock = callPackage ../applications/window-managers/i3/lock.nix {
     inherit (xorg) libxkbfile;
@@ -11117,6 +11149,8 @@ let
 
   soxr = callPackage ../applications/misc/audio/soxr { };
 
+  spek = callPackage ../applications/audio/spek { };
+
   spotify = callPackage ../applications/audio/spotify {
     inherit (gnome) GConf;
     libpng = libpng12;
@@ -11682,7 +11716,7 @@ let
   xdotool = callPackage ../tools/X11/xdotool { };
 
   xen = callPackage ../applications/virtualization/xen {
-    stdenv = overrideGCC stdenv gcc45;
+    stdenv = overrideCC stdenv gcc45;
   };
 
   xfe = callPackage ../applications/misc/xfe {
@@ -11801,7 +11835,7 @@ let
     (let callPackage = newScope pkgs.zathuraCollection; in
       import ../applications/misc/zathura {
         inherit callPackage pkgs fetchurl;
-        stdenv = overrideGCC stdenv gcc49;
+        stdenv = overrideCC stdenv gcc49;
         useMupdf = config.zathura.useMupdf or false;
       });
 
@@ -11813,7 +11847,7 @@ let
 
   girara = callPackage ../applications/misc/girara {
     gtk = gtk3;
-    stdenv = overrideGCC stdenv gcc49;
+    stdenv = overrideCC stdenv gcc49;
   };
 
   girara-light = callPackage ../applications/misc/girara {
@@ -13364,6 +13398,7 @@ let
   sqliteInteractive = sqlite-interactive;  # added 2014-12-06
   nfsUtils = nfs-utils;  # added 2014-12-06
   buildbotSlave = buildbot-slave;  # added 2014-12-09
+  cool-old-term = cool-retro-term; # added 2015-01-31
 
   opentsdb = callPackage ../tools/misc/opentsdb {};
 

@@ -66,6 +66,11 @@ stdenv.mkDerivation rec {
     ]
     ++ optional enableThreading "-Dusethreads";
 
+  # The perl makefiles all write `env MACOSX_DEPLOYMENT_TARGET=10.3 cc`. That environment variable
+  # only serves to thwart our attempts at controlling the darwin deployment target, so we just
+  # set it to `cc`. This should be equivalent on non-darwin platforms and better on darwin.
+  makeFlags = [ "LD=cc" ];
+
   configureScript = "${stdenv.shell} ./Configure";
 
   dontAddPrefix = true;

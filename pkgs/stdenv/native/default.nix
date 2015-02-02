@@ -98,7 +98,7 @@ rec {
   };
 
 
-  cc = import ../../build-support/gcc-wrapper {
+  cc = import ../../build-support/cc-wrapper {
     name = "gcc-native";
     nativeTools = true;
     nativeLibc = true;

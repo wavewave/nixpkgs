@@ -325,13 +325,13 @@ let
 
 
   alot = buildPythonPackage rec {
-    rev = "fa4ddf000dc2ac4933852b210901b649634a5f86";
-    name = "alot-0.3.5_${rev}";
+    rev = "0.3.6";
+    name = "alot-0.3.6";
 
     src = pkgs.fetchurl {
       url = "https://github.com/pazz/alot/tarball/${rev}";
       name = "${name}.tar.bz";
-      sha256 = "0h11lqyxg0xbkc9y1xqjvd0kmfm5pdwnmv9chmlsi1614dxn08n0";
+      sha256 = "1rzy70w4isvypa94310xw403vq5him21q8rlx4laa0z530phkrmq";
     };
 
     # error: invalid command 'test'
@@ -4255,6 +4255,10 @@ let
       maintainers = [ stdenv.lib.maintainers.iElectric ];
     };
   };
+
+  # py3k disabled, see https://travis-ci.org/NixOS/nixpkgs/builds/48759067
+  graph-tool = if isPy3k then throw "graph-tool in Nix doesn't support py3k yet"
+    else callPackage ../development/python-modules/graph-tool/2.x.x.nix { };
 
   grappelli_safe = buildPythonPackage rec {
     version = "0.3.13";

@@ -154,12 +154,6 @@ self: super: {
   # https://github.com/liamoc/wizards/issues/5
   wizards = doJailbreak super.wizards;
 
-  # https://github.com/ekmett/trifecta/issues/41
-  trifecta = appendPatch super.trifecta (pkgs.fetchpatch {
-    url = "https://github.com/ekmett/trifecta/pull/40.patch";
-    sha256 = "0qwz83fp0karf6164jykdwsrafq08l6zsdmcdm83xnkcxabgplxv";
-  });
-
   # https://github.com/NixOS/cabal2nix/issues/136
   gtk = addBuildDepends super.gtk [pkgs.pkgconfig pkgs.gtk];
   glib = addBuildDepends super.glib [pkgs.pkgconfig pkgs.glib];
@@ -208,6 +202,7 @@ self: super: {
   js-jquery = dontCheck super.js-jquery;
   marmalade-upload = dontCheck super.marmalade-upload;  # http://hydra.cryp.to/build/501904/nixlog/1/raw
   network-transport-zeromq = dontCheck super.network-transport-zeromq; # https://github.com/tweag/network-transport-zeromq/issues/30
+  network-transport-tcp = dontCheck super.network-transport-tcp;
   raven-haskell = dontCheck super.raven-haskell;        # http://hydra.cryp.to/build/502053/log/raw
   riak = dontCheck super.riak;                          # http://hydra.cryp.to/build/498763/log/raw
   stackage = dontCheck super.stackage;                  # http://hydra.cryp.to/build/501867/nixlog/1/raw
@@ -396,6 +391,31 @@ self: super: {
 
   # https://github.com/rrnewton/haskell-lockfree/issues/44
   chaselev-deque = markBrokenVersion "0.5.0.3" super.chaselev-deque;
+
+  # https://github.com/zouppen/stratum-tool/issues/14
+  stratum-tool = markBrokenVersion "0.0.4" super.stratum-tool;
+
+  # https://github.com/Gabriel439/Haskell-Turtle-Library/issues/1
+  turtle = dontCheck super.turtle;
+
+  # https://github.com/Philonous/xml-picklers/issues/5
+  xml-picklers = dontCheck super.xml-picklers;
+
+  # https://github.com/blamario/monoid-subclasses/issues/4
+  monoid-subclasses = dontCheck super.monoid-subclasses;
+
+  # https://github.com/joeyadams/haskell-stm-delay/issues/3
+  stm-delay = dontCheck super.stm-delay;
+
+  # https://github.com/JPMoresmau/HGraphStorage/issues/2
+  HGraphStorage = dontHaddock super.HGraphStorage;
+
+  # https://github.com/fumieval/call/issues/3
+  call = markBrokenVersion "0.1.2" super.call;
+  rhythm-game-tutorial = dontDistribute super.rhythm-game-tutorial;     # depends on call
+
+  # The install target tries to run lots of commands as "root". WTF???
+  hannahci = markBroken super.hannahci;
 
 } // {
 

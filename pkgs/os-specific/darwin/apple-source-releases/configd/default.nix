@@ -1,8 +1,6 @@
 { stdenv, appleDerivation, launchd, bootstrap_cmds, xnu, ppp, IOKit, eap8021x, Security }:
 
 appleDerivation {
-  phases = [ "unpackPhase" "patchPhase" "buildPhase" "installPhase" "fixupPhase" ];
-
   buildInputs = [ launchd bootstrap_cmds xnu ppp IOKit eap8021x ];
 
   propagatedBuildInputs = [ Security ];

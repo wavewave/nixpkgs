@@ -1,20 +1,17 @@
-{ stdenv, fetchurl, autoconf, automake, libtool
+{ stdenv, fetchFromGitHub, autoconf, automake, libtool
 , llvm, libcxx, clang, openssl, libuuid, libobjc ? null
 }:
 
 let
   baseParams = rec {
     name = "cctools-port-${version}";
-    version = "855";
+    version = "862";
 
-    src = let
-      # Should be fetchFromGitHub but it was whining so this will do for now
+    src = fetchFromGitHub {
       owner  = "tpoechtrager";
       repo   = "cctools-port";
-      rev    = "88fd4d1514b4e23cddb3409f74d09349d6ff2f3c";
-    in fetchurl {
-      url    = "http://github.com/${owner}/${repo}/archive/${rev}.tar.gz";
-      sha256 = "0qka91xp7h16g3m20q3iraf5nnps8kq56qs5478j5zdx9ajjl5zq";
+      rev    = "59d21d2c793c51d205c8b4ab14b9b28e63c72445";
+      sha256 = "11cfn49k30kla9z4sr094cfsfj41jryq2wj80sb761v596q6ai4r";
     };
 
     buildInputs = [ autoconf automake libtool openssl libuuid ] ++
