@@ -12,14 +12,23 @@ addCVars () {
     if [ -d $1/lib ]; then
         export NIX_LDFLAGS+=" -L$1/lib"
     fi
+
+    # TODO: this should probably go away
+    if test -d $1/System/Library/Frameworks; then
+        export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -F$1/System/Library/Frameworks"
+    fi
+
+    if test -d $1/Library/Frameworks; then
+        export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -F$1/Library/Frameworks"
+    fi
 }
 
 envHooks+=(addCVars)
 
 # Note: these come *after* $out in the PATH (see setup.sh).
 
-if [ -n "@gcc@" ]; then
-    addToSearchPath PATH @gcc@/bin
+if [ -n "@cc@" ]; then
+    addToSearchPath PATH @cc@/bin
 fi
 
 if [ -n "@binutils@" ]; then

@@ -60,7 +60,7 @@ in rec {
 
   stageFun = step: last: {shell             ? "${bootstrapTools}/bin/sh",
                           overrides         ? (pkgs: {}),
-                          extraPreHook      ? "export LD_DYLD_PATH=${last.pkgs.darwin.dyld}/lib/dyld",
+                          extraPreHook      ? "",
                           extraBuildInputs  ? with last.pkgs; [ xz darwin.CF ],
                           extraInitialPath  ? [],
                           allowedRequisites ? null}:
@@ -70,16 +70,17 @@ in rec {
 
         name = "stdenv-darwin-boot-${toString step}";
 
-        cc = if isNull last then "/no-such-path" else import ../../build-support/clang-wrapper {
+        cc = if isNull last then "/no-such-path" else import ../../build-support/cc-wrapper {
           inherit shell;
           inherit (last) stdenv;
           inherit (last.pkgs) libcxx libcxxabi;
+          inherit (last.pkgs.darwin) dyld;
 
           nativeTools  = true;
           nativePrefix = bootstrapTools;
           nativeLibc   = false;
           libc         = last.pkgs.darwin.Libsystem;
-          clang        = { name = "clang-9.9.9"; outPath = bootstrapTools; };
+          cc           = { name = "clang-9.9.9"; outPath = bootstrapTools; };
         };
 
         preHook = stage0.stdenv.lib.optionalString (shell == "${bootstrapTools}/bin/sh") ''
@@ -121,6 +122,7 @@ in rec {
             ln -s ${bootstrapTools}/include-libSystem $out/include
           '';
         };
+        dyld = bootstrapTools;
       };
 
       libcxx = stdenv.mkDerivation {
@@ -149,17 +151,13 @@ in rec {
       };
     };
 
-    extraPreHook     = "";
     extraBuildInputs = [];
   };
 
   persistent0 = _: { inherit (stage0.pkgs) xz; };
 
   stage1 = with stage0; stageFun 1 stage0 {
-    extraPreHook = ''
-      export NIX_CFLAGS_COMPILE+=" -F${bootstrapTools}/Library/Frameworks"
-      export LD_DYLD_PATH=${bootstrapTools}/lib/dyld
-    '';
+    extraPreHook = "export NIX_CFLAGS_COMPILE+=\" -F${bootstrapTools}/Library/Frameworks\"";
     extraBuildInputs = [];
 
     allowedRequisites =
@@ -243,10 +241,7 @@ in rec {
 
     name = "stdenv-darwin";
 
-    preHook = ''
-      ${commonPreHook}
-      export LD_DYLD_PATH=${pkgs.darwin.dyld}/lib/dyld
-    '';
+    preHook = commonPreHook;
 
     __stdenvImpureHostDeps = binShClosure ++ libSystemClosure;
     __extraImpureHostDeps  = binShClosure ++ libSystemClosure;
@@ -254,12 +249,13 @@ in rec {
     initialPath = import ../common-path.nix { inherit pkgs; };
     shell       = "${pkgs.bash}/bin/bash";
 
-    cc = import ../../build-support/clang-wrapper {
+    cc = import ../../build-support/cc-wrapper {
       inherit stdenv shell;
       nativeTools = false;
       nativeLibc  = false;
       inherit (pkgs) libcxx libcxxabi coreutils binutils;
-      inherit (pkgs.llvmPackages) clang;
+      inherit (pkgs.darwin) dyld;
+      cc   = pkgs.llvmPackages.clang;
       libc = pkgs.darwin.Libsystem;
     };
 
