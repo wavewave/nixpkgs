@@ -10,7 +10,7 @@ in with pkgs; {
       gitFull
       subversion
       emacs24Macport
-      texLive
+#      texLive # slow as hell, can't be bothered to wait for it
       ocaml
       coq_HEAD
       tmux
@@ -25,7 +25,7 @@ in with pkgs; {
       iperf
       watch
       weechat
-      vim
+ #     vim # broken on 10.10 due to framework mismatches
       pass
       gnupg
     ];
