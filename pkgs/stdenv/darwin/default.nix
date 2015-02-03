@@ -132,7 +132,6 @@ in rec {
           ln -s ${bootstrapTools}/lib/libc++.dylib $out/lib/libc++.dylib
           ln -s ${bootstrapTools}/include/c++      $out/include/c++
         '';
-        inherit libcxxabi;
         setupHook = ../../development/libraries/libc++/setup-hook.sh;
       };
 
