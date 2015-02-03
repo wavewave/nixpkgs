@@ -9,7 +9,6 @@
 , cc ? null, libc ? null, binutils ? null, coreutils ? null, shell ? stdenv.shell
 , zlib ? null, extraPackages ? []
 , setupHook ? ./setup-hook.sh
-, libcxx ? null, libcxxabi ? null
 }:
 
 with stdenv.lib;
@@ -35,7 +34,7 @@ stdenv.mkDerivation {
 
   preferLocalBuild = true;
 
-  inherit cc shell libcxx libcxxabi;
+  inherit cc shell;
   libc = if nativeLibc then null else libc;
   binutils = if nativeTools then null else binutils;
   # The wrapper scripts use 'cat', so we may need coreutils.
