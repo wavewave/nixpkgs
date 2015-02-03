@@ -55,6 +55,7 @@ rec {
     # Needed by the GCC wrapper.
     langC = true;
     langCC = true;
+    isGNU = true;
   };
 
 
@@ -206,10 +207,10 @@ rec {
       # reduces the size of the stdenv closure.
       gmp = pkgs.gmp.override { stdenv = pkgs.makeStaticLibraries pkgs.stdenv; };
       mpfr = pkgs.mpfr.override { stdenv = pkgs.makeStaticLibraries pkgs.stdenv; };
-      mpc = pkgs.mpc.override { stdenv = pkgs.makeStaticLibraries pkgs.stdenv; };
+      libmpc = pkgs.libmpc.override { stdenv = pkgs.makeStaticLibraries pkgs.stdenv; };
       isl = pkgs.isl.override { stdenv = pkgs.makeStaticLibraries pkgs.stdenv; };
       cloog = pkgs.cloog.override { stdenv = pkgs.makeStaticLibraries pkgs.stdenv; };
-      gccPlain = pkgs.gcc.gcc;
+      gccPlain = pkgs.gcc.cc;
     };
     extraBuildInputs = [ stage2.pkgs.patchelf stage2.pkgs.paxctl ];
   };
@@ -232,7 +233,7 @@ rec {
       gcc = lib.makeOverridable (import ../../build-support/cc-wrapper) {
         nativeTools = false;
         nativeLibc = false;
-        cc = stage4.stdenv.cc.gcc;
+        cc = stage4.stdenv.cc.cc;
         libc = stage4.pkgs.glibc;
         inherit (stage4.pkgs) binutils coreutils;
         name = "";
@@ -282,7 +283,7 @@ rec {
     allowedRequisites = with stage4.pkgs;
       [ gzip bzip2 xz bash binutils coreutils diffutils findutils gawk
         glibc gnumake gnused gnutar gnugrep gnupatch patchelf attr acl
-        paxctl zlib pcre linuxHeaders ed gcc gcc.gcc libsigsegv
+        paxctl zlib pcre linuxHeaders ed gcc gcc.cc libsigsegv
       ];
 
     overrides = pkgs: {

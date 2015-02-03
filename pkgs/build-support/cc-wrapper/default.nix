@@ -8,6 +8,7 @@
 { name ? "", stdenv, nativeTools, nativeLibc, nativePrefix ? ""
 , cc ? null, libc ? null, binutils ? null, coreutils ? null, shell ? stdenv.shell
 , zlib ? null, extraPackages ? []
+, setupHook ? ./setup-hook.sh
 , libcxx ? null, libcxxabi ? null
 }:
 
@@ -87,7 +88,7 @@ stdenv.mkDerivation {
     ''
 
     + (if nativeTools then ''
-      ccPath="${if stdenv.isDarwin then cc else nativePrefix}/bin"
+      ccPath="${nativePrefix}/bin"
       ldPath="${nativePrefix}/bin"
     '' else ''
       echo $cc > $out/nix-support/orig-cc
@@ -160,12 +161,18 @@ stdenv.mkDerivation {
         wrap ld.bfd ${./ld-wrapper.sh} $binutils/bin/ld.bfd
       fi
 
+      export real_cc=cc
+      export real_cxx=c++
       if [ -e $ccPath/gcc ]; then
         wrap gcc ${./cc-wrapper.sh} $ccPath/gcc
         ln -s gcc $out/bin/cc
+        export real_cc=gcc
+        export real_cxx=g++
       elif [ -e $ccPath/clang ]; then
         wrap clang ${./cc-wrapper.sh} $ccPath/clang
         ln -s clang $out/bin/cc
+        export real_cc=clang
+        export real_cxx=clang++
       fi
 
       if [ -e $ccPath/g++ ]; then
@@ -207,7 +214,7 @@ stdenv.mkDerivation {
     ''
 
     + ''
-      substituteAll ${./setup-hook.sh} $out/nix-support/setup-hook
+      substituteAll ${setupHook} $out/nix-support/setup-hook
       substituteAll ${./add-flags} $out/nix-support/add-flags.sh
       cp -p ${./utils.sh} $out/nix-support/utils.sh
     '';
