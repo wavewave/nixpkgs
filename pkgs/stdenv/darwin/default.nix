@@ -61,7 +61,7 @@ in rec {
   stageFun = step: last: {shell             ? "${bootstrapTools}/bin/sh",
                           overrides         ? (pkgs: {}),
                           extraPreHook      ? "",
-                          extraBuildInputs  ? with last.pkgs; [ xz darwin.CF ],
+                          extraBuildInputs  ? with last.pkgs; [ xz darwin.CF libcxx ],
                           extraInitialPath  ? [],
                           allowedRequisites ? null}:
     let
@@ -73,7 +73,6 @@ in rec {
         cc = if isNull last then "/no-such-path" else import ../../build-support/cc-wrapper {
           inherit shell;
           inherit (last) stdenv;
-          inherit (last.pkgs) libcxx libcxxabi;
           inherit (last.pkgs.darwin) dyld;
 
           nativeTools  = true;
@@ -112,7 +111,7 @@ in rec {
     in { stdenv = thisStdenv; pkgs = thisPkgs; };
 
   stage0 = stageFun 0 null {
-    overrides = orig: with stage0; {
+    overrides = orig: with stage0; rec {
       darwin = orig.darwin // {
         Libsystem = stdenv.mkDerivation {
           name = "bootstrap-libSystem";
@@ -127,11 +126,13 @@ in rec {
 
       libcxx = stdenv.mkDerivation {
         name = "bootstrap-libcxx";
-        buildCommand = ''
+        phases = [ "installPhase" "fixupPhase" ];
+        installPhase = ''
           mkdir -p $out/lib $out/include
           ln -s ${bootstrapTools}/lib/libc++.dylib $out/lib/libc++.dylib
           ln -s ${bootstrapTools}/include/c++      $out/include/c++
         '';
+        setupHook = ../../development/libraries/libc++/setup-hook.sh;
       };
 
       libcxxabi = stdenv.mkDerivation {
@@ -158,7 +159,7 @@ in rec {
 
   stage1 = with stage0; stageFun 1 stage0 {
     extraPreHook = "export NIX_CFLAGS_COMPILE+=\" -F${bootstrapTools}/Library/Frameworks\"";
-    extraBuildInputs = [];
+    extraBuildInputs = [ pkgs.libcxx ];
 
     allowedRequisites =
       [ bootstrapTools ] ++ (with pkgs; [ libcxx libcxxabi ]) ++ [ pkgs.darwin.Libsystem ];
@@ -253,13 +254,13 @@ in rec {
       inherit stdenv shell;
       nativeTools = false;
       nativeLibc  = false;
-      inherit (pkgs) libcxx libcxxabi coreutils binutils;
+      inherit (pkgs) coreutils binutils;
       inherit (pkgs.darwin) dyld;
       cc   = pkgs.llvmPackages.clang;
       libc = pkgs.darwin.Libsystem;
     };
 
-    extraBuildInputs = [ pkgs.darwin.CF ];
+    extraBuildInputs = with pkgs; [ darwin.CF libcxx ];
 
     extraAttrs = {
       inherit platform bootstrapTools;

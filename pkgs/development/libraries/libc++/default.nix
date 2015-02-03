@@ -47,8 +47,6 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  inherit libcxxabi;
-
   setupHook = ./setup-hook.sh;
 
   meta = {

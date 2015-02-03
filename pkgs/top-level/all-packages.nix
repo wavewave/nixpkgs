@@ -381,7 +381,7 @@ let
     inherit lib;
   };
 
-  makeInitrd = {contents, compressor ? "gzip -9"}:
+  makeInitrd = {contents, compressor ? "gzip -9n"}:
     import ../build-support/kernel/make-initrd.nix {
       inherit stdenv perl perlArchiveCpio cpio contents ubootChooser compressor;
     };
@@ -3239,7 +3239,7 @@ let
   }));
 
   gcc45 = lowPrio (wrapCC (callPackage ../development/compilers/gcc/4.5 {
-    inherit fetchurl stdenv gmp mpfr mpc libelf zlib perl
+    inherit fetchurl stdenv gmp mpfr libmpc libelf zlib perl
       gettext which noSysDirs;
     texinfo = texinfo4;
 
@@ -3302,8 +3302,8 @@ let
 
   gcc48_multi =
     if system == "x86_64-linux" then lowPrio (
-      wrapCCWith (import ../build-support/cc-wrapper) glibc_multi (gcc48.gcc.override {
-        stdenv = overrideCC stdenv (wrapCCWith (import ../build-support/cc-wrapper) glibc_multi gcc.gcc);
+      wrapCCWith (import ../build-support/cc-wrapper) glibc_multi (gcc48.cc.override {
+        stdenv = overrideCC stdenv (wrapCCWith (import ../build-support/cc-wrapper) glibc_multi gcc.cc);
         profiledCompiler = false;
         enableMultilib = true;
       }))
@@ -4148,17 +4148,17 @@ let
    * build system so that the Qt 4 components find the Qt 4 headers and the Qt 5
    * components find the Qt 5 headers.
    */
-  wrapGCCStdInc = glibc: baseGCC: (import ../build-support/gcc-wrapper) {
+  wrapGCCStdInc = glibc: baseGCC: (import ../build-support/cc-wrapper) {
     nativeTools = stdenv.cc.nativeTools or false;
     nativeLibc = stdenv.cc.nativeLibc or false;
     nativePrefix = stdenv.cc.nativePrefix or "";
-    gcc = baseGCC;
+    cc = baseGCC;
     libc = glibc;
     inherit stdenv binutils coreutils zlib;
-    setupHook = ../build-support/gcc-wrapper/setup-hook-stdinc.sh;
+    setupHook = ../build-support/cc-wrapper/setup-hook-stdinc.sh;
   };
 
-  gccStdInc = wrapGCCStdInc glibc gcc.gcc;
+  gccStdInc = wrapGCCStdInc glibc gcc.cc;
 
   # prolog
   yap = callPackage ../development/compilers/yap { };
@@ -4739,7 +4739,7 @@ let
   distccMasquerade = if stdenv.isDarwin
     then null
     else callPackage ../development/tools/misc/distcc/masq.nix {
-      gccRaw = gcc.gcc;
+      gccRaw = gcc.cc;
       binutils = binutils;
     };
 
@@ -5857,7 +5857,7 @@ let
   };
 
   kf55 = recurseIntoAttrs (callPackage ../development/libraries/kde-frameworks-5.5 {
-    stdenv = overrideGCC stdenv gccStdInc;
+    stdenv = overrideCC stdenv gccStdInc;
   });
   kf56 = recurseIntoAttrs (callPackage ../development/libraries/kde-frameworks-5.6 {});
   kf5_latest = kf56;
@@ -6706,7 +6706,7 @@ let
 
   mp4v2 = callPackage ../development/libraries/mp4v2 { };
 
-  mpc = callPackage ../development/libraries/mpc { };
+  libmpc = callPackage ../development/libraries/libmpc { };
 
   mpich2 = callPackage ../development/libraries/mpich2 { };
 
@@ -8847,6 +8847,8 @@ let
 
   golint = callPackage ../development/tools/golint { };
 
+  godep = callPackage ../development/tools/godep { };
+
   gogoclient = callPackage ../os-specific/linux/gogoclient { };
 
   nss_ldap = callPackage ../os-specific/linux/nss_ldap { };
@@ -10398,7 +10400,8 @@ let
   };
 
   kdeApps_14_12 = recurseIntoAttrs (callPackage ../applications/kde-apps-14.12 {
-    stdenv = overrideGCC stdenv gccStdInc;
+    kf5 = kf55;
+    stdenv = overrideCC stdenv gccStdInc;
   });
   kdeApps_latest = kdeApps_14_12;
   kdeApps_stable = kdeApps_14_12;
@@ -10961,6 +10964,18 @@ let
     qt = qt5;
     dconf = gnome3.dconf;
     tag = "-qt5";
+  };
+
+  quasselClient_qt5 = quassel_qt5.override {
+    monolithic = false;
+    client = true;
+    tag = "-client-qt5";
+  };
+
+  quasselDaemon_qt5 = quassel_qt5.override {
+    monolithic = false;
+    daemon = true;
+    tag = "-daemon-qt5";
   };
 
   quirc = callPackage ../tools/graphics/quirc {};
@@ -11786,6 +11801,8 @@ let
     inherit (gnome) libglade;
   };
 
+  xss-lock = callPackage ../misc/screensavers/xss-lock { };
+
   xsynth_dssi = callPackage ../applications/audio/xsynth-dssi { };
 
   xterm = callPackage ../applications/misc/xterm { };
@@ -12318,7 +12335,9 @@ let
 
       eventlist = callPackage ../applications/office/eventlist {};
 
-      k3b = callPackage ../applications/misc/k3b { };
+      k3b = callPackage ../applications/misc/k3b {
+        cdrtools = cdrkit;
+      };
 
       kadu = callPackage ../applications/networking/instant-messengers/kadu { };
 
@@ -12488,7 +12507,7 @@ let
   mate-themes = callPackage ../misc/themes/mate-themes { };
 
   plasma51 = recurseIntoAttrs (callPackage ../desktops/plasma-5.1 {
-    stdenv = overrideGCC stdenv gccStdInc;
+    stdenv = overrideCC stdenv gccStdInc;
   });
   plasma52 = recurseIntoAttrs (callPackage ../desktops/plasma-5.2 {});
   plasma5_latest = plasma52;
@@ -13353,7 +13372,7 @@ let
     # this is to circumvent the bug with libgcc_s.so.1 which is
     # not found when using thread
     extraCmds = ''
-       LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${gcc.gcc}/lib
+       LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${gcc.cc}/lib
        export LD_LIBRARY_PATH
     '';
   };
