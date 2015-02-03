@@ -9,6 +9,7 @@
 , cc ? null, libc ? null, binutils ? null, coreutils ? null, shell ? stdenv.shell
 , zlib ? null, extraPackages ? []
 , dyld ? null # TODO: should this be a setup-hook on dyld?
+, setupHook ? ./setup-hook.sh
 }:
 
 with stdenv.lib;
@@ -93,7 +94,7 @@ stdenv.mkDerivation {
     ''
 
     + (if nativeTools then ''
-      ccPath="${if stdenv.isDarwin then cc else nativePrefix}/bin"
+      ccPath="${nativePrefix}/bin"
       ldPath="${nativePrefix}/bin"
     '' else ''
       echo $cc > $out/nix-support/orig-cc
@@ -166,12 +167,18 @@ stdenv.mkDerivation {
         wrap ld.bfd ${./ld-wrapper.sh} $binutils/bin/ld.bfd
       fi
 
+      export real_cc=cc
+      export real_cxx=c++
       if [ -e $ccPath/gcc ]; then
         wrap gcc ${./cc-wrapper.sh} $ccPath/gcc
         ln -s gcc $out/bin/cc
+        export real_cc=gcc
+        export real_cxx=g++
       elif [ -e $ccPath/clang ]; then
         wrap clang ${./cc-wrapper.sh} $ccPath/clang
         ln -s clang $out/bin/cc
+        export real_cc=clang
+        export real_cxx=clang++
       fi
 
       if [ -e $ccPath/g++ ]; then
@@ -213,7 +220,7 @@ stdenv.mkDerivation {
     ''
 
     + ''
-      substituteAll ${./setup-hook.sh} $out/nix-support/setup-hook.tmp
+      substituteAll ${setupHook} $out/nix-support/setup-hook.tmp
       cat $out/nix-support/setup-hook.tmp >> $out/nix-support/setup-hook
       rm $out/nix-support/setup-hook.tmp
 

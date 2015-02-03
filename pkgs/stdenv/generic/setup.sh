@@ -370,10 +370,8 @@ substitute() {
         content="${content//"$pattern"/$replacement}"
     done
 
-    local tempfile="$(mktemp -t "$(basename "$output")".XXXXXXXXXX)"
-    printf "%s" "$content" > "$tempfile"
-    if [ -x "$output" ]; then chmod +x "$tempfile"; fi
-    mv -f "$tempfile" "$output"
+    chmod -f +w "$output" || true
+    printf "%s" "$content" > "$output"
 }
 
 
@@ -784,8 +782,6 @@ showPhaseHeader() {
 
 
 genericBuild() {
-    header "building $out"
-
     if [ -n "$buildCommand" ]; then
         eval "$buildCommand"
         return
@@ -829,8 +825,6 @@ genericBuild() {
 
         stopNest
     done
-
-    stopNest
 }
 
 

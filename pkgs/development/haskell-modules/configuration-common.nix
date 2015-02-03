@@ -94,6 +94,7 @@ self: super: {
   markdown-unlit = dontHaddock super.markdown-unlit;
   network-conduit = dontHaddock super.network-conduit;
   shakespeare-text = dontHaddock super.shakespeare-text;
+  uhc-light = dontHaddock super.uhc-light;                      # https://github.com/UU-ComputerScience/uhc/issues/45
 
   # jailbreak doesn't get the job done because the Cabal file uses conditionals a lot.
   darcs = overrideCabal super.darcs (drv: {
@@ -189,6 +190,7 @@ self: super: {
   # These packages try to access the network.
   concurrent-dns-cache = dontCheck super.concurrent-dns-cache;
   dbus = dontCheck super.dbus;                          # http://hydra.cryp.to/build/498404/log/raw
+  hadoop-rpc = dontCheck super.hadoop-rpc;              # http://hydra.cryp.to/build/527461/nixlog/2/raw
   hasql = dontCheck super.hasql;                        # http://hydra.cryp.to/build/502489/nixlog/4/raw
   holy-project = dontCheck super.holy-project;          # http://hydra.cryp.to/build/502002/nixlog/1/raw
   http-client = dontCheck super.http-client;            # http://hydra.cryp.to/build/501430/nixlog/1/raw
@@ -394,14 +396,8 @@ self: super: {
   # https://github.com/Philonous/xml-picklers/issues/5
   xml-picklers = dontCheck super.xml-picklers;
 
-  # https://github.com/blamario/monoid-subclasses/issues/4
-  monoid-subclasses = dontCheck super.monoid-subclasses;
-
   # https://github.com/joeyadams/haskell-stm-delay/issues/3
   stm-delay = dontCheck super.stm-delay;
-
-  # https://github.com/JPMoresmau/HGraphStorage/issues/2
-  HGraphStorage = dontHaddock super.HGraphStorage;
 
   # https://github.com/fumieval/call/issues/3
   call = markBrokenVersion "0.1.2" super.call;
@@ -409,6 +405,21 @@ self: super: {
 
   # The install target tries to run lots of commands as "root". WTF???
   hannahci = markBroken super.hannahci;
+
+  # https://github.com/jkarni/th-alpha/issues/1
+  th-alpha = markBrokenVersion "0.2.0.0" super.th-alpha;
+
+  # https://github.com/haskell-hub/hub-src/issues/24
+  hub = markBrokenVersion "1.4.0" super.hub;
+
+  # https://github.com/audreyt/MoeDict.hs/issues/1
+  MoeDict = markBrokenVersion "0.0.1" super.MoeDict;
+
+  # https://github.com/pixbi/duplo/issues/25
+  duplo = dontCheck super.duplo;
+
+  # https://github.com/seagreen/hjsonschema/issues/4
+  hjsonschema = dontCheck super.hjsonschema;
 
 } // {
 
