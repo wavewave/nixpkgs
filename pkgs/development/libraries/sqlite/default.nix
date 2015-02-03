@@ -1,6 +1,6 @@
-{ lib, stdenv, fetchurl, interactive ? false, readline ? null, ncurses ? null }:
+{ lib, stdenv, fetchurl, interactive ? false, readline, ncurses ? null }:
 
-assert interactive -> readline != null && ncurses != null;
+assert interactive -> ncurses != null;
 
 stdenv.mkDerivation {
   name = "sqlite-3.8.7.1";
@@ -10,7 +10,7 @@ stdenv.mkDerivation {
     sha1 = "5601be1263842209d7c5dbf6128f1cc0b6bbe2e5";
   };
 
-  buildInputs = lib.optionals interactive [ readline ncurses ];
+  buildInputs = [ readline ] ++ lib.optional interactive ncurses;
 
   configureFlags = "--enable-threadsafe";
 
