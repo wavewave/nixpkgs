@@ -18,19 +18,16 @@ let
     };
 
     buildInputs = [
-      autoconf automake libtool llvm clang openssl libuuid
+      autoconf automake libtool llvm clang openssl libuuid libcxx
     ];
 
     patches = [ ./ld-rpath-nonfinal.patch ./ld-ignore-rpath-link.patch ];
 
     enableParallelBuilding = true;
 
-    configureFlags = [ "CXXFLAGS=-I${libcxx}/include/c++/v1" ];
-
     postPatch = ''
       patchShebangs tools
       sed -i -e 's/which/type -P/' tools/*.sh
-      sed -i -e 's|clang++|& -I${libcxx}/include/c++/v1|' cctools/autogen.sh
 
       # Workaround for https://www.sourceware.org/bugzilla/show_bug.cgi?id=11157
       cat > cctools/include/unistd.h <<EOF

@@ -12,7 +12,7 @@ stdenv.mkDerivation (rec {
 
   nativeBuildInputs = [ m4 ];
 
-  patches = stdenv.lib.optional stdenv.isDarwin ./need-size-t.patch;
+  patches = if stdenv.isDarwin then [ ./need-size-t.patch ] else null;
 
   configureFlags =
     # Build a "fat binary", with routines for several sub-architectures

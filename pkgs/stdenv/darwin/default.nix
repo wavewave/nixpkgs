@@ -59,6 +59,8 @@ rec {
 
   # A stdenv that wraps the Apple command-line tools and our other trivial symlinked bootstrap tools
   stage1 = rec {
+    nativePrefix = "${buildTools.tools}/Library/Developer/CommandLineTools/usr";
+
     stdenv = import ../generic {
       name = "stdenv-darwin-boot-1";
 
@@ -68,15 +70,15 @@ rec {
       preHook = preHook + "\n" + ''
         export NIX_LDFLAGS_AFTER+=" -L/usr/lib"
         export NIX_ENFORCE_PURITY=
+        export NIX_CFLAGS_COMPILE+=" -isystem ${nativePrefix}/include/c++/v1 -stdlib=libc++"
+        export NIX_CFLAGS_LINK+=" -stdlib=libc++ -Wl,-rpath,${nativePrefix}/lib"
       '';
 
       cc = import ../../build-support/cc-wrapper {
         nativeTools  = true;
-        nativePrefix = "${buildTools.tools}/Library/Developer/CommandLineTools/usr";
+        nativePrefix = nativePrefix;
         nativeLibc   = true;
         stdenv       = stage0.stdenv;
-        libcxx       = "/usr";
-        libcxxabi    = "/usr";
         shell        = "/bin/bash";
         cc           = {
           name    = "clang-9.9.9";
@@ -124,11 +126,11 @@ rec {
       inherit stdenv;
       nativeTools  = false;
       nativeLibc   = true;
-      inherit (pkgs) libcxx libcxxabi;
       binutils  = pkgs.darwin.cctools_native;
       cc        = pkgs.llvmPackages.clang;
       coreutils = pkgs.coreutils;
       shell     = "${pkgs.bash}/bin/bash";
+      extraPackages = [ pkgs.libcxx ];
     };
 
     shell = "${pkgs.bash}/bin/bash";
