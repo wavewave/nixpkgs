@@ -25,8 +25,6 @@ in stdenv.mkDerivation {
     export NIX_CFLAGS_COMPILE+=" -I${libunwind}/include"
   '';
 
-  NIX_SKIP_CXXABI = "true";
-
   installPhase = if stdenv.isDarwin
     then ''
       for file in lib/*; do

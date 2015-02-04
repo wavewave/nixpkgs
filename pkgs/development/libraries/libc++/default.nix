@@ -42,9 +42,6 @@ stdenv.mkDerivation rec {
       --replace "-lc++abi" ""
   '';
 
-  # We also need this to prevent more spurious libc++abi linkage...
-  NIX_SKIP_CXXABI = "true";
-
   enableParallelBuilding = true;
 
   setupHook = ./setup-hook.sh;
