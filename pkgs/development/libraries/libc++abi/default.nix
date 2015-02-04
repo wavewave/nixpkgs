@@ -1,4 +1,4 @@
-{ stdenv, cmake, coreutils, fetchsvn, libcxx, libunwind, llvm }:
+{ stdenv, cmake, fetchsvn, libcxx, libunwind, llvm }:
 let
   rev = "217324";
 in stdenv.mkDerivation {
@@ -12,13 +12,13 @@ in stdenv.mkDerivation {
 
   NIX_CFLAGS_LINK = if stdenv.isDarwin then "" else "-L${libunwind}/lib";
 
-  buildInputs = [ coreutils cmake ];
+  buildInputs = [ cmake ];
 
   postUnpack = ''
     unpackFile ${libcxx.src}
     unpackFile ${llvm.src}
     export NIX_CFLAGS_COMPILE+="  -I$PWD/include"
-    export cmakeFlags="-DLLVM_PATH=$(${coreutils}/bin/readlink -f llvm-*) -DLIBCXXABI_LIBCXX_INCLUDES=$(${coreutils}/bin/readlink -f libcxx-*)/include"
+    export cmakeFlags="-DLLVM_PATH=$(readlink -f llvm-*) -DLIBCXXABI_LIBCXX_INCLUDES=$(readlink -f libcxx-*)/include"
   '' + stdenv.lib.optionalString stdenv.isDarwin ''
     export TRIPLE=x86_64-apple-darwin
   '' + stdenv.lib.optionalString (!stdenv.isDarwin) ''
