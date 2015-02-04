@@ -63,14 +63,11 @@ self: super: {
   # Choose appropriate flags for our version of 'bytestring'.
   bytestring-builder = disableCabalFlag super.bytestring-builder "bytestring_has_builder";
 
-  # these conditionally depend on tagged
+  # Tagged is not part of base in this environment.
   contravariant = addBuildDepend super.contravariant self.tagged;
-
-  # old haddock can't handle reflection.cabal's code blocks
   reflection = dontHaddock (addBuildDepend super.reflection self.tagged);
 
   ghc-mod = addBuildDepend super.ghc-mod super.convertible;
-
 } // {
 
   # Not on Hackage.

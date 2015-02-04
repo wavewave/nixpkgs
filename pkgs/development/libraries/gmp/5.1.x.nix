@@ -12,7 +12,7 @@ stdenv.mkDerivation (rec {
 
   nativeBuildInputs = [ m4 ];
 
-  patches = stdenv.lib.optional stdenv.isDarwin ./need-size-t.patch;
+  patches = if stdenv.isDarwin then [ ./need-size-t.patch ] else null;
 
   # CC=cc works regardless of gcc or clang, and this prevents the generated output from retaining
   # unnecessary absolute references to our bootstrap tools during the darwin stdenv bootstrapping

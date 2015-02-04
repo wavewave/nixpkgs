@@ -16,11 +16,11 @@ let
 in
 
 stdenv.mkDerivation rec {
-  version = "7.11.20150118";
+  version = "7.11.20150128";
   name = "ghc-${version}";
 
   src = fetchurl {
-    url = "http://deb.haskell.org/dailies/2015-01-31/ghc_7.11.20150128.orig.tar.bz2";
+    url = "http://deb.haskell.org/dailies/2015-01-31/ghc_${version}.orig.tar.bz2";
     sha256 = "0fafb4gn2n2fd5779m0j3q0bhj3wlv043japcpr1ly5lljph5y4j";
   };
 

@@ -6,8 +6,6 @@ in
 
 let inherit (args.composableDerivation) composableDerivation edf; in
 composableDerivation {
-  # use gccApple to compile on darwin
-  mkDerivation = stdenv.mkDerivation;
 } (fix: {
 
     name = "qvim-7.4." + tag;
