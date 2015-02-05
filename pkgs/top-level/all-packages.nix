@@ -556,8 +556,6 @@ let
 
   lastpass-cli = callPackage ../tools/security/lastpass-cli { };
 
-  otool = callPackage ../os-specific/darwin/otool { };
-
   pass = callPackage ../tools/security/pass {
     gnupg = gnupg1compat;
   };
@@ -3139,7 +3137,7 @@ let
     libc = glibc;
     binutils = binutils;
     shell = bash;
-    inherit libcxx coreutils zlib;
+    inherit coreutils zlib;
     nativeTools = false;
     nativeLibc = false;
   };
