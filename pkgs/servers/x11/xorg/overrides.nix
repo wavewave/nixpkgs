@@ -47,10 +47,14 @@ in
 
   imake = attrs: attrs // {
     inherit (xorg) xorgcffiles;
-    tradcpp = if stdenv.isDarwin then args.tradcpp else null;
     x11BuildHook = ./imake.sh;
     patches = [./imake.patch];
     setupHook = if stdenv.isDarwin then ./darwin-imake-setup-hook.sh else null;
+    CFLAGS = [ "-DIMAKE_COMPILETIME_CPP=\\\"${if stdenv.isDarwin
+      then "${args.tradcpp}/bin/cpp"
+      else "gcc"}\\\""
+    ];
+    tradcpp = if stdenv.isDarwin then args.tradcpp else null;
   };
 
   mkfontdir = attrs: attrs // {
@@ -270,7 +274,8 @@ in
         libpciaccess inputproto xextproto randrproto renderproto presentproto
         dri2proto dri3proto kbproto xineramaproto resourceproto scrnsaverproto videoproto
       ];
-      commonPatches = [ ./xorgserver-xkbcomp-path.patch ./fix-clang.patch ];
+      commonPatches = [ ./xorgserver-xkbcomp-path.patch ]
+                   ++ lib.optional isDarwin ./fix-clang.patch;
       # XQuartz requires two compilations: the first to get X / XQuartz,
       # and the second to get Xvfb, Xnest, etc.
       darwinOtherX = overrideDerivation xorgserver (oldAttrs: {
@@ -373,7 +378,7 @@ in
 
   xinit = attrs: attrs // {
     stdenv = if isDarwin then args.clangStdenv else stdenv;
-    buildInputs = stdenv.lib.optional isDarwin [ args.bootstrap_cmds args.pkgconfig ];
+    buildInputs = if isDarwin then [ args.bootstrap_cmds args.pkgconfig ] else null;
     configureFlags = [
       "--with-xserver=${xorg.xorgserver}/bin/X"
     ] ++ lib.optionals isDarwin [
@@ -381,7 +386,8 @@ in
       "--with-launchdaemons-dir=\${out}/LaunchDaemons"
       "--with-launchagents-dir=\${out}/LaunchAgents"
     ];
-    propagatedBuildInputs = [ xorg.xauth xorg.libX11 xorg.xproto ];
+    propagatedBuildInputs = [ xorg.xauth ]
+                         ++ lib.optionals isDarwin [ xorg.libX11 xorg.xproto ];
     prePatch = ''
       sed -i 's|^defaultserverargs="|&-logfile \"$HOME/.xorg.log\"|p' startx.cpp
     '';

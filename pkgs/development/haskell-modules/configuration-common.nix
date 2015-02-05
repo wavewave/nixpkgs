@@ -42,17 +42,18 @@ self: super: {
   # Link the proper version.
   zeromq4-haskell = super.zeromq4-haskell.override { zeromq = pkgs.zeromq4; };
 
-  # "curl" means pkgs.curl
-  git-annex = super.git-annex.override { inherit (pkgs) git rsync gnupg1 curl lsof openssh which bup perl wget; };
+  # These changes are required to support Darwin.
+  git-annex = super.git-annex.override {
+    dbus = if pkgs.stdenv.isLinux then self.dbus else null;
+    fdo-notify = if pkgs.stdenv.isLinux then self.fdo-notify else null;
+    hinotify = if pkgs.stdenv.isLinux then self.hinotify else self.fsnotify;
+  };
 
   # Depends on code distributed under a non-free license.
   bindings-yices = dontDistribute super.bindings-yices;
   yices = dontDistribute super.yices;
   yices-easy = dontDistribute super.yices-easy;
   yices-painless = dontDistribute super.yices-painless;
-
-  # This package overrides the one from pkgs.gnome.
-  gtkglext = super.gtkglext.override { inherit (pkgs.gnome) gtkglext; };
 
   # The test suite refers to its own library with an invalid version constraint.
   presburger = dontCheck super.presburger;
@@ -65,7 +66,7 @@ self: super: {
     configureFlags =  "--extra-include-dirs=${pkgs.zookeeper_mt}/include/zookeeper";
     doCheck = false;
   });
-       
+
   haskakafka = overrideCabal super.haskakafka (drv: {
     preConfigure = "sed -i -e /extra-lib-dirs/d -e /include-dirs/d haskakafka.cabal";
     configureFlags =  "--extra-include-dirs=${pkgs.rdkafka}/include/librdkafka";
@@ -441,13 +442,17 @@ self: super: {
   duplo = dontCheck super.duplo;
 
   # https://github.com/seagreen/hjsonschema/issues/4
-  hjsonschema = dontCheck super.hjsonschema;
+  # https://github.com/seagreen/hjsonschema/issues/5
+  hjsonschema = dontHaddock (dontCheck super.hjsonschema);
 
   # Nix-specific workaround
   xmonad = appendPatch super.xmonad ./xmonad-nix.patch;
 
   # https://github.com/evanrinehart/mikmod/issues/1
   mikmod = addExtraLibrary super.mikmod pkgs.libmikmod;
+
+  # https://github.com/d12frosted/CanonicalPath/issues/3
+  system-canonicalpath = dontCheck super.system-canonicalpath;
 
 } // {
 
