@@ -1,6 +1,6 @@
 { fetchurl, stdenv, which, pkgconfig, makeWrapper, libxcb, xcbutilkeysyms
 , xcbutil, xcbutilwm, libstartup_notification, libX11, pcre, libev, yajl
-, xcb-util-cursor, coreutils, perl, pango, perlPackages, xdummy}:
+, xcb-util-cursor, coreutils, perl, pango, perlPackages, xdummy }:
 
 stdenv.mkDerivation rec {
   name = "i3-${version}";
