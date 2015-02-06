@@ -3138,13 +3138,14 @@ let
     binutils = binutils;
     shell = bash;
     inherit coreutils zlib;
+    extraPackages = [ libcxx ];
     nativeTools = false;
     nativeLibc = false;
   };
 
   #Use this instead of stdenv to build with clang
-  clangStdenv = if stdenv.isDarwin then stdenv else lowPrio (stdenvAdapters.overrideCC stdenv clang);
-  libcxxStdenv = stdenvAdapters.overrideCC stdenv (clangWrapSelf llvmPackages.clang);
+  clangStdenv  = if stdenv.isDarwin then stdenv else lowPrio (stdenvAdapters.overrideCC stdenv clang);
+  libcxxStdenv = if stdenv.isDarwin then stdenv else stdenvAdapters.overrideCC stdenv (clangWrapSelf llvmPackages.clang);
 
   clean = callPackage ../development/compilers/clean { };
 
