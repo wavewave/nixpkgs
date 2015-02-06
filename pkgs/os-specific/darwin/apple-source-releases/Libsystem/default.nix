@@ -1,6 +1,6 @@
 { stdenv, appleDerivation, cpio, bootstrap_cmds, xnu, Libc, Libm, libdispatch, cctools, Libinfo,
   dyld, Csu, architecture, libclosure, CarbonHeaders, ncurses, CommonCrypto, copyfile,
-  removefile, libresolv, Libnotify, libpthread, mDNSResponder, version }:
+  removefile, libresolv, Libnotify, libpthread, mDNSResponder, launchd, version }:
 
 appleDerivation rec {
   phases = [ "unpackPhase" "installPhase" ];
@@ -46,11 +46,13 @@ appleDerivation rec {
     mkdir -p $out/lib $out/include
 
     # Set up our include directories
-    (cd ${xnu}/include && find . -name '*.h' | cpio -pdm $out/include)
+    (cd ${xnu}/include && find . -name '*.h' -or -name '*.defs' | cpio -pdm $out/include)
     cp ${xnu}/Library/Frameworks/Kernel.framework/Versions/A/Headers/Availability*.h $out/include
     cp ${xnu}/Library/Frameworks/Kernel.framework/Versions/A/Headers/stdarg.h        $out/include
 
-    for dep in ${Libc} ${Libm} ${Libinfo} ${dyld} ${architecture} ${libclosure} ${CarbonHeaders} ${libdispatch} ${ncurses} ${CommonCrypto} ${copyfile} ${removefile} ${libresolv} ${Libnotify} ${mDNSResponder}; do
+    for dep in ${Libc} ${Libm} ${Libinfo} ${dyld} ${architecture} ${libclosure} ${CarbonHeaders} \
+               ${libdispatch} ${ncurses} ${CommonCrypto} ${copyfile} ${removefile} ${libresolv} \
+               ${Libnotify} ${mDNSResponder} ${launchd}; do
       (cd $dep/include && find . -name '*.h' | cpio -pdm $out/include)
     done
 
@@ -143,5 +145,3 @@ appleDerivation rec {
     license     = licenses.apsl20;
   };
 }
-
-# ld -macosx_version_min 10.6 -arch x86_64 -dylib -o $out/lib/libSystem.dylib -reexport-lSystem
