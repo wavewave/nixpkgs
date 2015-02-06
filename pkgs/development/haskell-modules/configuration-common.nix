@@ -210,6 +210,7 @@ self: super: {
   xmlgen = dontCheck super.xmlgen;
 
   # These packages try to access the network.
+  amqp = dontCheck super.amqp;
   concurrent-dns-cache = dontCheck super.concurrent-dns-cache;
   dbus = dontCheck super.dbus;                          # http://hydra.cryp.to/build/498404/log/raw
   hadoop-rpc = dontCheck super.hadoop-rpc;              # http://hydra.cryp.to/build/527461/nixlog/2/raw
@@ -223,6 +224,7 @@ self: super: {
   network-transport-tcp = dontCheck super.network-transport-tcp;
   raven-haskell = dontCheck super.raven-haskell;        # http://hydra.cryp.to/build/502053/log/raw
   riak = dontCheck super.riak;                          # http://hydra.cryp.to/build/498763/log/raw
+  slack-api = dontCheck super.slack-api;                # https://github.com/mpickering/slack-api/issues/5
   stackage = dontCheck super.stackage;                  # http://hydra.cryp.to/build/501867/nixlog/1/raw
   warp = dontCheck super.warp;                          # http://hydra.cryp.to/build/501073/nixlog/5/raw
   wreq = dontCheck super.wreq;                          # http://hydra.cryp.to/build/501895/nixlog/1/raw
@@ -453,6 +455,20 @@ self: super: {
 
   # https://github.com/d12frosted/CanonicalPath/issues/3
   system-canonicalpath = dontCheck super.system-canonicalpath;
+
+  # https://github.com/basvandijk/threads/issues/10
+  threads = dontCheck super.threads;
+
+  # https://github.com/ucsd-progsys/liquid-fixpoint/issues/44
+  liquid-fixpoint = overrideCabal super.liquid-fixpoint (drv: { preConfigure = "patchShebangs ."; });
+
+  # LLVM 3.5 breaks GHC: https://ghc.haskell.org/trac/ghc/ticket/9142.
+  GlomeVec = super.GlomeVec.override { llvm = pkgs.llvm_34; };  # https://github.com/jimsnow/glome/issues/2
+  gloss-raster = super.gloss-raster.override { llvm = pkgs.llvm_34; };
+  repa-examples = super.repa-examples.override { llvm = pkgs.llvm_34; };
+
+  # Upstream notified by e-mail.
+  OpenGLRaw21 = markBrokenVersion "1.2.0.1" super.OpenGLRaw21;
 
 } // {
 
