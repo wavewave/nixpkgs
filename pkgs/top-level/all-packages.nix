@@ -5758,14 +5758,14 @@ let
   hamlib = callPackage ../development/libraries/hamlib { };
 
   # TODO : Add MIT Kerberos and let admin choose.
-  # TODO : Fix kerberos on Darwin
-  kerberos = if stdenv.isDarwin then null else heimdal;
+  kerberos = heimdal;
 
   heimdal = callPackage ../development/libraries/kerberos/heimdal.nix {
     openldap = openldap.override {
       cyrus_sasl = cyrus_sasl.override { kerberos = null; };
     };
     cyrus_sasl = cyrus_sasl.override { kerberos = null; };
+    inherit (darwin) bootstrap_cmds Security configd;
   };
 
   harfbuzz = callPackage ../development/libraries/harfbuzz { };
