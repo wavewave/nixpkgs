@@ -1,5 +1,6 @@
 { stdenv, fetchurl, noSysDirs, zlib
 , cross ? null, gold ? true, bison ? null
+, libintlOrEmpty
 }:
 
 let basename = "binutils-2.23.1"; in
@@ -36,7 +37,7 @@ stdenv.mkDerivation rec {
 
   buildInputs =
     [ zlib ]
-    ++ optional gold bison;
+    ++ optional gold bison ++ libintlOrEmpty;
 
   inherit noSysDirs;
 
