@@ -13,11 +13,6 @@ addCVars () {
         export NIX_LDFLAGS+=" -L$1/lib"
     fi
 
-    # TODO: this should probably go away
-    if test -d $1/System/Library/Frameworks; then
-        export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -F$1/System/Library/Frameworks"
-    fi
-
     if test -d $1/Library/Frameworks; then
         export NIX_CFLAGS_COMPILE="$NIX_CFLAGS_COMPILE -F$1/Library/Frameworks"
     fi
