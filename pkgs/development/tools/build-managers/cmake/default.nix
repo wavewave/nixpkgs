@@ -42,6 +42,9 @@ stdenv.mkDerivation rec {
   postPatch = ''
     substituteInPlace Modules/Platform/Darwin.cmake \
       --replace 'list(REMOVE_DUPLICATES _apps_paths)' ''$'if (_apps_paths)\nlist(REMOVE_DUPLICATES _apps_paths)\nendif()'
+  '' + stdenv.lib.optionalString stdenv.isDarwin ''
+    echo 'set(CURSES_CURSES_LIBRARY "${ncurses}/lib/libncursesw.dylib")' >> CompileFlags.cmake
+    echo 'set(CURSES_CURSES_H_PATH "${ncurses}/include")' >> CompileFlags.cmake
   '';
 
   buildInputs = [ curl expat zlib bzip2 libarchive ]
