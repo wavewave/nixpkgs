@@ -3189,8 +3189,6 @@ let
   gcc       = gcc48;
   gcc_multi = gcc48_multi;
 
-  gccApple = throw "gccApple is no longer supported";
-
   gcc34 = wrapCC (import ../development/compilers/gcc/3.4 {
     inherit fetchurl stdenv noSysDirs;
   });
