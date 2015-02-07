@@ -17,7 +17,7 @@ let
     mkdir = fetch { file = "mkdir"; sha256 = "0x9jqf4rmkykbpkybp40x4d0v0dq99i0r5yk8096mjn1m7s7xa0p"; };
     cpio  = fetch { file = "cpio";  sha256 = "1a5s8bs14jhhmgrf4cwn92iq8sbz40qhjzj7y35ri84prp9clkc3"; };
   };
-  tarball = fetch { file = "bootstrap-tools.8.cpio.bz2"; sha256 = "0n6g79mi2vxpymwbp3vpyn170ibvly2rjxc2x2q6jp98qvfr7izq"; };
+  tarball = fetch { file = "bootstrap-tools.9.cpio.bz2"; sha256 = "1qfcdavsmfvai6izg5fl0d3j9r61h2hnkmnr8gzqzjjrl71zyhky"; };
 in rec {
   allPackages = import ../../top-level/all-packages.nix;
 

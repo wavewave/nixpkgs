@@ -1,5 +1,6 @@
 { stdenv, fetchFromGitHub, autoconf, automake, libtool
-, llvm, libcxx, clang, openssl, libuuid, libobjc ? null
+, llvm, libcxx, libcxxabi, clang, openssl, libuuid
+, libobjc ? null
 }:
 
 let
@@ -17,7 +18,7 @@ let
     buildInputs = [ autoconf automake libtool openssl libuuid ] ++
       # Only need llvm and clang if the stdenv isn't already clang-based (TODO: just make a stdenv.cc.isClang)
       stdenv.lib.optionals (!stdenv.isDarwin) [ llvm clang ] ++
-      stdenv.lib.optional stdenv.isDarwin libobjc;
+      stdenv.lib.optionals stdenv.isDarwin [ libcxxabi libobjc ];
 
     patches = [
       ./ld-rpath-nonfinal.patch ./ld-ignore-rpath-link.patch
