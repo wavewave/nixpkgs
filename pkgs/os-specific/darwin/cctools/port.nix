@@ -28,6 +28,9 @@ let
     configureFlags = stdenv.lib.optionals (!stdenv.isDarwin) [ "CXXFLAGS=-I${libcxx}/include/c++/v1" ];
 
     postPatch = ''
+      substituteInPlace cctools/ld64/src/ld/Options.cpp \
+        --replace "addStandardLibraryDirectories = true" "addStandardLibraryDirectories = false"
+
       # FIXME: there are far more absolute path references that I don't want to fix right now
       substituteInPlace cctools/configure.ac \
         --replace "-isystem /usr/local/include -isystem /usr/pkg/include" "" \
