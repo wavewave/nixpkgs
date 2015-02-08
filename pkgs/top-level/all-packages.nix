@@ -2050,6 +2050,8 @@ let
 
   obexftp = callPackage ../tools/bluetooth/obexftp { };
 
+  objconv = callPackage ../development/tools/misc/objconv {};
+
   obnam = callPackage ../tools/backup/obnam { };
 
   ocz-toolbox = callPackage ../os-specific/linux/ocz-toolbox { };
@@ -8381,7 +8383,6 @@ let
     cmdline_sdk   = cmdline.sdk;
     cmdline_tools = cmdline.tools;
 
-    objconv = callPackage ../os-specific/darwin/objconv {};
     apple_sdk = callPackage ../os-specific/darwin/apple-sdk {};
 
     libobjc = apple-source-releases.objc4;
