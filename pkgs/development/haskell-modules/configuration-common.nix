@@ -206,6 +206,7 @@ self: super: {
   HList = dontCheck super.HList;
   memcached-binary = dontCheck super.memcached-binary;
   postgresql-simple = dontCheck super.postgresql-simple;
+  postgrest = dontCheck super.postgrest;
   snowball = dontCheck super.snowball;
   wai-middleware-hmac = dontCheck super.wai-middleware-hmac;
   xmlgen = dontCheck super.xmlgen;
@@ -217,6 +218,7 @@ self: super: {
   dbus = dontCheck super.dbus;                          # http://hydra.cryp.to/build/498404/log/raw
   hadoop-rpc = dontCheck super.hadoop-rpc;              # http://hydra.cryp.to/build/527461/nixlog/2/raw
   hasql = dontCheck super.hasql;                        # http://hydra.cryp.to/build/502489/nixlog/4/raw
+  hjsonschema = overrideCabal super.hjsonschema (drv: { testTarget = "local"; });
   holy-project = dontCheck super.holy-project;          # http://hydra.cryp.to/build/502002/nixlog/1/raw
   http-client = dontCheck super.http-client;            # http://hydra.cryp.to/build/501430/nixlog/1/raw
   http-conduit = dontCheck super.http-conduit;          # http://hydra.cryp.to/build/501966/nixlog/1/raw
@@ -391,9 +393,6 @@ self: super: {
   # https://github.com/chrisdone/hindent/issues/83
   hindent = dontCheck super.hindent;
 
-  # https://github.com/begriffs/postgrest/issues/131
-  postgrest = markBrokenVersion "0.2.5.2" super.postgrest;
-
   # Needs older versions of its dependencies.
   structured-haskell-mode = (dontJailbreak super.structured-haskell-mode).override {
     haskell-src-exts = self.haskell-src-exts_1_15_0_1;  # https://github.com/chrisdone/structured-haskell-mode/issues/90
@@ -442,10 +441,6 @@ self: super: {
   # https://github.com/pixbi/duplo/issues/25
   duplo = dontCheck super.duplo;
 
-  # https://github.com/seagreen/hjsonschema/issues/4
-  # https://github.com/seagreen/hjsonschema/issues/5
-  hjsonschema = dontHaddock (dontCheck super.hjsonschema);
-
   # Nix-specific workaround
   xmonad = appendPatch super.xmonad ./xmonad-nix.patch;
 
@@ -468,6 +463,20 @@ self: super: {
 
   # Upstream notified by e-mail.
   OpenGLRaw21 = markBrokenVersion "1.2.0.1" super.OpenGLRaw21;
+
+  # Missing module.
+  rematch = dontCheck super.rematch;            # https://github.com/tcrayford/rematch/issues/5
+  rematch-text = dontCheck super.rematch-text;  # https://github.com/tcrayford/rematch/issues/6
+
+  # Missing files in the test suite stanza.
+  Rasterific = dontCheck super.Rasterific;              # https://github.com/Twinside/Rasterific/issues/19
+  rasterific-svg = dontCheck super.rasterific-svg;      # https://github.com/Twinside/rasterific-svg/issues/1
+
+  # https://github.com/utdemir/handsy/issues/5
+  handsy = dontCheck super.handsy;
+
+  # Upstream notified by e-mail.
+  MonadCompose = markBrokenVersion "0.2.0.0" super.MonadCompose;
 
 } // {
 
