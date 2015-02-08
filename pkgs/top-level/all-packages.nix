@@ -8413,11 +8413,11 @@ let
     cmdline = callPackage ../os-specific/darwin/command-line-tools {};
     apple-source-releases = import ../os-specific/darwin/apple-source-releases { inherit stdenv fetchurl pkgs; };
   in apple-source-releases // rec {
-    cctools_cross = forceNativeDrv (callPackage ../os-specific/darwin/cctools/port.nix {
+    cctools_cross = forceNativeDrv (callPackage (callPackage ../os-specific/darwin/cctools/port.nix {}).cross {
       cross = assert crossSystem != null; crossSystem;
       inherit maloader;
       xctoolchain = xcode.toolchain;
-    }).cross;
+    });
 
     cctools = (callPackage ../os-specific/darwin/cctools/port.nix { inherit libobjc; }).native;
 
