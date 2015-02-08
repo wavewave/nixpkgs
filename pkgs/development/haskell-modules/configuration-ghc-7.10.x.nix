@@ -63,6 +63,7 @@ self: super: {
   attoparsec = dontCheck super.attoparsec;
 
   # test suite hangs silently for at least 10 minutes
+  ChasingBottoms = dontCheck super.ChasingBottoms;
   split = dontCheck super.split;
 
   # Test suite fails with some (seemingly harmless) error.
@@ -192,4 +193,11 @@ self: super: {
     version = "0.6.0.8";
     jailbreak = true;
   });
+
+  # Upstream was notified about the over-specified constraint on 'base'
+  # but refused to do anything about it because he "doesn't want to
+  # support a moving target". Go figure.
+  barecheck = doJailbreak super.barecheck;
+  cartel = overrideCabal super.cartel (drv: { doCheck = false; patchPhase = "sed -i -e 's|base >= .*|base|' cartel.cabal"; });
+
 }

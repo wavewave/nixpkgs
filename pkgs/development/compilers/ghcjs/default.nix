@@ -98,7 +98,7 @@ in mkDerivation (rec {
     chmod -R u+w $topDir/shims
   '';
   postInstall = ''
-    PATH=$out/bin:$PATH LD_LIBRARY_PATH=${gmp}/lib:${gcc.gcc}/lib64:$LD_LIBRARY_PATH \
+    PATH=$out/bin:$PATH LD_LIBRARY_PATH=${gmp}/lib:${gcc.cc}/lib64:$LD_LIBRARY_PATH \
       env -u GHC_PACKAGE_PATH $out/bin/ghcjs-boot \
         --dev \
         --with-cabal ${cabal-install}/bin/cabal \

@@ -8,12 +8,12 @@ in
 
 stdenv.mkDerivation rec {
   name = "v8-${version}";
-  version = "3.26.31.15";
+  version = "4.1.0.15";
 
   src = fetchurl {
     url = "https://commondatastorage.googleapis.com/chromium-browser-official/"
         + "${name}.tar.bz2";
-    sha256 = "067pk6hr7wjx7yxhla5la0rnv51kf7837kfydzydjwapsbcx6m8l";
+    sha256 = "0ac6kkcjfsbs19i3m1asjx1c040qknj4n31wrjb6nz7mjsdmwg72";
   };
 
   patchPhase = ''
@@ -57,8 +57,8 @@ stdenv.mkDerivation rec {
   '';
 
   postFixup = if stdenv.isDarwin then ''
-    install_name_tool -change /usr/local/lib/libv8.dylib $out/lib/libv8.dylib -change /usr/lib/libgcc_s.1.dylib ${stdenv.cc.gcc}/lib/libgcc_s.1.dylib $out/bin/d8
-    install_name_tool -id $out/lib/libv8.dylib -change /usr/lib/libgcc_s.1.dylib ${stdenv.cc.gcc}/lib/libgcc_s.1.dylib $out/lib/libv8.dylib
+    install_name_tool -change /usr/local/lib/libv8.dylib $out/lib/libv8.dylib -change /usr/lib/libgcc_s.1.dylib ${stdenv.cc.cc}/lib/libgcc_s.1.dylib $out/bin/d8
+    install_name_tool -id $out/lib/libv8.dylib -change /usr/lib/libgcc_s.1.dylib ${stdenv.cc.cc}/lib/libgcc_s.1.dylib $out/lib/libv8.dylib
   '' else null;
 
   meta = with stdenv.lib; {

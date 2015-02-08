@@ -36,8 +36,12 @@ self: super: {
   # Link the proper version.
   zeromq4-haskell = super.zeromq4-haskell.override { zeromq = pkgs.zeromq4; };
 
-  # "curl" means pkgs.curl
-  git-annex = super.git-annex.override { inherit (pkgs) git rsync gnupg1 curl lsof openssh which bup perl wget; };
+  # These changes are required to support Darwin.
+  git-annex = (disableSharedExecutables super.git-annex).override {
+    dbus = if pkgs.stdenv.isLinux then self.dbus else null;
+    fdo-notify = if pkgs.stdenv.isLinux then self.fdo-notify else null;
+    hinotify = if pkgs.stdenv.isLinux then self.hinotify else self.fsnotify;
+  };
 
   # Depends on code distributed under a non-free license.
   bindings-yices = dontDistribute super.bindings-yices;
@@ -45,14 +49,26 @@ self: super: {
   yices-easy = dontDistribute super.yices-easy;
   yices-painless = dontDistribute super.yices-painless;
 
-  # This package overrides the one from pkgs.gnome.
-  gtkglext = super.gtkglext.override { inherit (pkgs.gnome) gtkglext; };
-
   # The test suite refers to its own library with an invalid version constraint.
   presburger = dontCheck super.presburger;
 
   # Won't find it's header files without help.
   sfml-audio = appendConfigureFlag super.sfml-audio "--extra-include-dirs=${pkgs.openal}/include/AL";
+
+  hzk = overrideCabal super.hzk (drv: {
+    preConfigure = "sed -i -e /include-dirs/d hzk.cabal";
+    configureFlags =  "--extra-include-dirs=${pkgs.zookeeper_mt}/include/zookeeper";
+    doCheck = false;
+  });
+
+  haskakafka = overrideCabal super.haskakafka (drv: {
+    preConfigure = "sed -i -e /extra-lib-dirs/d -e /include-dirs/d haskakafka.cabal";
+    configureFlags =  "--extra-include-dirs=${pkgs.rdkafka}/include/librdkafka";
+    doCheck = false;
+   });
+
+  # Foreign dependency name clashes with another Haskell package.
+  libarchive-conduit = super.libarchive-conduit.override { archive = pkgs.libarchive; };
 
   # https://github.com/haskell/time/issues/23
   time_1_5_0_1 = dontCheck super.time_1_5_0_1;
@@ -85,6 +101,7 @@ self: super: {
   markdown-unlit = dontHaddock super.markdown-unlit;
   network-conduit = dontHaddock super.network-conduit;
   shakespeare-text = dontHaddock super.shakespeare-text;
+  uhc-light = dontHaddock super.uhc-light;                      # https://github.com/UU-ComputerScience/uhc/issues/45
 
   # jailbreak doesn't get the job done because the Cabal file uses conditionals a lot.
   darcs = overrideCabal super.darcs (drv: {
@@ -119,6 +136,8 @@ self: super: {
   # Doesn't compile: <http://hydra.cryp.to/build/465891/nixlog/1/raw>.
   integer-gmp_0_5_1_0 = markBroken super.integer-gmp_0_5_1_0;
 
+  lushtags = markBrokenVersion "0.0.1" super.lushtags;
+
   # https://github.com/haskell/bytestring/issues/41
   bytestring_0_10_4_1 = dontCheck super.bytestring_0_10_4_1;
 
@@ -131,15 +150,10 @@ self: super: {
   # https://github.com/liamoc/wizards/issues/5
   wizards = doJailbreak super.wizards;
 
-  # https://github.com/ekmett/trifecta/issues/41
-  trifecta = appendPatch super.trifecta (pkgs.fetchpatch {
-    url = "https://github.com/ekmett/trifecta/pull/40.patch";
-    sha256 = "0qwz83fp0karf6164jykdwsrafq08l6zsdmcdm83xnkcxabgplxv";
-  });
-
   # https://github.com/NixOS/cabal2nix/issues/136
-  gtk = addBuildDepends super.gtk [pkgs.pkgconfig pkgs.gtk];
   glib = addBuildDepends super.glib [pkgs.pkgconfig pkgs.glib];
+  gtk3 = super.gtk3.override { inherit (pkgs) gtk3; };
+  gtk = addBuildDepends super.gtk [pkgs.pkgconfig pkgs.gtk];
 
   # https://github.com/jgm/zip-archive/issues/21
   zip-archive = addBuildTool super.zip-archive pkgs.zip;
@@ -149,6 +163,9 @@ self: super: {
 
   # Upstream notified by e-mail.
   permutation = dontCheck super.permutation;
+
+  # https://github.com/vincenthz/hs-tls/issues/102
+  tls = dontCheck super.tls;
 
   # https://github.com/jputcu/serialport/issues/25
   serialport = dontCheck super.serialport;
@@ -172,11 +189,15 @@ self: super: {
   memcached-binary = dontCheck super.memcached-binary;
   postgresql-simple = dontCheck super.postgresql-simple;
   snowball = dontCheck super.snowball;
+  wai-middleware-hmac = dontCheck super.wai-middleware-hmac;
   xmlgen = dontCheck super.xmlgen;
 
   # These packages try to access the network.
+  amqp = dontCheck super.amqp;
+  amqp-conduit = dontCheck super.amqp-conduit;
   concurrent-dns-cache = dontCheck super.concurrent-dns-cache;
   dbus = dontCheck super.dbus;                          # http://hydra.cryp.to/build/498404/log/raw
+  hadoop-rpc = dontCheck super.hadoop-rpc;              # http://hydra.cryp.to/build/527461/nixlog/2/raw
   hasql = dontCheck super.hasql;                        # http://hydra.cryp.to/build/502489/nixlog/4/raw
   holy-project = dontCheck super.holy-project;          # http://hydra.cryp.to/build/502002/nixlog/1/raw
   http-client = dontCheck super.http-client;            # http://hydra.cryp.to/build/501430/nixlog/1/raw
@@ -184,8 +205,10 @@ self: super: {
   js-jquery = dontCheck super.js-jquery;
   marmalade-upload = dontCheck super.marmalade-upload;  # http://hydra.cryp.to/build/501904/nixlog/1/raw
   network-transport-zeromq = dontCheck super.network-transport-zeromq; # https://github.com/tweag/network-transport-zeromq/issues/30
+  network-transport-tcp = dontCheck super.network-transport-tcp;
   raven-haskell = dontCheck super.raven-haskell;        # http://hydra.cryp.to/build/502053/log/raw
   riak = dontCheck super.riak;                          # http://hydra.cryp.to/build/498763/log/raw
+  slack-api = dontCheck super.slack-api;                # https://github.com/mpickering/slack-api/issues/5
   stackage = dontCheck super.stackage;                  # http://hydra.cryp.to/build/501867/nixlog/1/raw
   warp = dontCheck super.warp;                          # http://hydra.cryp.to/build/501073/nixlog/5/raw
   wreq = dontCheck super.wreq;                          # http://hydra.cryp.to/build/501895/nixlog/1/raw
@@ -349,8 +372,8 @@ self: super: {
   # https://github.com/chrisdone/hindent/issues/83
   hindent = dontCheck super.hindent;
 
-  # https://github.com/begriffs/postgrest/issues/127
-  postgrest = dontDistribute super.postgrest;
+  # https://github.com/begriffs/postgrest/issues/131
+  postgrest = markBrokenVersion "0.2.5.2" super.postgrest;
 
   # Needs older versions of its dependencies.
   structured-haskell-mode = (dontJailbreak super.structured-haskell-mode).override {
@@ -371,6 +394,61 @@ self: super: {
 
   # https://github.com/rrnewton/haskell-lockfree/issues/44
   chaselev-deque = markBrokenVersion "0.5.0.3" super.chaselev-deque;
+
+  # https://github.com/zouppen/stratum-tool/issues/14
+  stratum-tool = markBrokenVersion "0.0.4" super.stratum-tool;
+
+  # https://github.com/Gabriel439/Haskell-Turtle-Library/issues/1
+  turtle = dontCheck super.turtle;
+
+  # https://github.com/Philonous/xml-picklers/issues/5
+  xml-picklers = dontCheck super.xml-picklers;
+
+  # https://github.com/joeyadams/haskell-stm-delay/issues/3
+  stm-delay = dontCheck super.stm-delay;
+
+  # https://github.com/fumieval/call/issues/3
+  call = markBrokenVersion "0.1.2" super.call;
+  rhythm-game-tutorial = dontDistribute super.rhythm-game-tutorial;     # depends on call
+
+  # The install target tries to run lots of commands as "root". WTF???
+  hannahci = markBroken super.hannahci;
+
+  # https://github.com/jkarni/th-alpha/issues/1
+  th-alpha = markBrokenVersion "0.2.0.0" super.th-alpha;
+
+  # https://github.com/haskell-hub/hub-src/issues/24
+  hub = markBrokenVersion "1.4.0" super.hub;
+
+  # https://github.com/pixbi/duplo/issues/25
+  duplo = dontCheck super.duplo;
+
+  # https://github.com/seagreen/hjsonschema/issues/4
+  # https://github.com/seagreen/hjsonschema/issues/5
+  hjsonschema = dontHaddock (dontCheck super.hjsonschema);
+
+  # Nix-specific workaround
+  xmonad = appendPatch super.xmonad ./xmonad-nix.patch;
+
+  # https://github.com/evanrinehart/mikmod/issues/1
+  mikmod = addExtraLibrary super.mikmod pkgs.libmikmod;
+
+  # https://github.com/d12frosted/CanonicalPath/issues/3
+  system-canonicalpath = dontCheck super.system-canonicalpath;
+
+  # https://github.com/basvandijk/threads/issues/10
+  threads = dontCheck super.threads;
+
+  # https://github.com/ucsd-progsys/liquid-fixpoint/issues/44
+  liquid-fixpoint = overrideCabal super.liquid-fixpoint (drv: { preConfigure = "patchShebangs ."; });
+
+  # LLVM 3.5 breaks GHC: https://ghc.haskell.org/trac/ghc/ticket/9142.
+  GlomeVec = super.GlomeVec.override { llvm = pkgs.llvm_34; };  # https://github.com/jimsnow/glome/issues/2
+  gloss-raster = super.gloss-raster.override { llvm = pkgs.llvm_34; };
+  repa-examples = super.repa-examples.override { llvm = pkgs.llvm_34; };
+
+  # Upstream notified by e-mail.
+  OpenGLRaw21 = markBrokenVersion "1.2.0.1" super.OpenGLRaw21;
 
 } // {
 
