@@ -96,6 +96,57 @@ self: super: {
     version = "0.7.0.3";
   });
 
+  bzlib = overrideCabal super.bzlib (drv: {
+    sha256 = null;
+    src = ../../../../bzlib;
+    editedCabalFile = null;
+    version = "0.5.0.5";
+  });
+
+  haddock-library = overrideCabal super.haddock-library (drv: {
+    sha256 = null;
+    src = ../../../../haddock/haddock-library;
+    version = "1.2.0";
+    doCheck = false;
+    jailbreak = true;
+  });
+
+  haddock-api = overrideCabal super.haddock-api (drv: {
+    sha256 = null;
+    src = ../../../../haddock/haddock-api;
+    version = "2.16.0";
+    doCheck = false;
+    jailbreak = true;
+  });
+
+  haddock = overrideCabal super.haddock (drv: {
+    sha256 = null;
+    src = ../../../../haddock;
+    version = "2.16.0";
+    doCheck = false;
+    jailbreak = true;
+  });
+
+  stringsearch = overrideCabal super.stringsearch (drv: {
+    sha256 = null;
+    src = ../../../../stringsearch;
+    version = "0.3.6.6";
+  });
+
+  tar = overrideCabal super.tar (drv: {
+    sha256 = null;
+    src = ../../../../tar;
+    version = "0.4.0.2";
+    jailbreak = true;
+  });
+
+  th-expand-syns = overrideCabal super.th-expand-syns (drv: {
+    sha256 = null;
+    src = ../../../../th-expand-syns;
+    version = "0.4.0.2";
+    jailbreak = true;
+  });
+
   # intervals fails to build on GHC 7.10 due to 'null' being added to Foldable
   intervals = overrideCabal super.intervals (drv: {
     sha256 = null;
@@ -105,5 +156,40 @@ self: super: {
       sha256 = "3da3c33ef57afc488f03c8b8a52925c8c6bf4cf8aac854da48dd565c7b61384d";
     };
     version = "0.7.0.2";
+  });
+
+  ghcjs-prim = self.callPackage ({ mkDerivation, fetchgit, primitive }: mkDerivation {
+    pname = "ghcjs-prim";
+    version = "0.1.0.0";
+    src = fetchgit {
+      url = git://github.com/ryantrinkle/ghcjs-prim.git;
+      rev = "1d622ffecace0f56a73b7d32b71865d83fa2d496";
+      sha256 = "609feced378a33dd62158b693876528da5293b86c38be7759002e4e09024cbdd";
+    };
+    buildDepends = [ primitive ];
+    license = stdenv.lib.licenses.bsd3;
+  }) {};
+
+  heist = overrideCabal super.heist (drv: {
+    sha256 = null;
+    src = ../../../../heist;
+    editedCabalFile = null;
+    version = "0.14.0.2";
+  });
+
+  ChasingBottoms = dontCheck super.ChasingBottoms; # Hangs
+  base64-bytestring = dontCheck super.base64-bytestring; # Hangs
+  vector-algorithms = dontCheck super.vector-algorithms; # Hangs
+  snap = overrideCabal super.snap (drv: {
+    jailbreak = true;
+    preConfigure = ''
+      sed -i 's/template-haskell.*,/template-haskell -any,/' snap.cabal
+    '';
+  });
+  haskell-src-meta = overrideCabal super.haskell-src-meta (drv: {
+    sha256 = null;
+    src = ../../../../haskell-src-meta;
+    version = "0.6.0.8";
+    jailbreak = true;
   });
 }

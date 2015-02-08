@@ -82,4 +82,20 @@ self: super: {
   # https://github.com/ndmitchell/extra/issues/4
   extra = dontCheck super.extra;
 
+  ghcjs-prim = self.callPackage ({ mkDerivation, fetchgit, primitive }: mkDerivation {
+    pname = "ghcjs-prim";
+    version = "0.1.0.0";
+    src = fetchgit {
+      url = git://github.com/ryantrinkle/ghcjs-prim.git;
+      rev = "1d622ffecace0f56a73b7d32b71865d83fa2d496";
+      sha256 = "609feced378a33dd62158b693876528da5293b86c38be7759002e4e09024cbdd";
+    };
+    buildDepends = [ primitive ];
+    license = stdenv.lib.licenses.bsd3;
+  }) {};
+
+  ChasingBottoms = dontCheck super.ChasingBottoms; # Hangs
+  base64-bytestring = dontCheck super.base64-bytestring; # Hangs
+  vector-algorithms = dontCheck super.vector-algorithms; # Hangs
+
 }

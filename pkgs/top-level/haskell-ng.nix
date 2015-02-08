@@ -21,6 +21,18 @@ rec {
     ghcHEAD = callPackage ../development/compilers/ghc/head.nix { ghc = compiler.ghc784; gmp = pkgs.gmp.override { withStatic = true; }; };
     ghc = compiler.ghc784;
 
+    ghcjs = (packages.ghc7101.override {
+      overrides = self: super: {
+#        mkDerivation = drv: super.mkDerivation (drv // { doHaddock = false; });
+#        Cabal = self.Cabal_1_22_0_0;
+#        haddock-api = super.haddock-api.override { Cabal = null; };
+#        haddock = super.haddock.override { Cabal = null; };
+      };
+    }).callPackage ../development/compilers/ghcjs {
+      ghc = compiler.ghc7101;
+      gmp = "${pkgs.gmp.override { withStatic = true; }}";
+    };
+
   };
 
   packages = {
@@ -59,7 +71,10 @@ rec {
       packageSetConfig = callPackage ../development/haskell-modules/configuration-ghc-head.nix { };
     };
     ghcjs = callPackage ../development/haskell-modules {
+      ghc = compiler.ghcjs;
       packageSetConfig = callPackage ../development/haskell-modules/configuration-ghcjs.nix { };
+      jailbreak-cabal = "${packages.ghc7101.jailbreak-cabal}";
+      hsc2hs = "${compiler.ghc7101}/bin/hsc2hs";
     };
 
   };

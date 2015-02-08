@@ -2,6 +2,8 @@
 , packageSetConfig ? (self: super: {})
 , overrides ? (self: super: {})
 , provideOldAttributeNames ? false
+, jailbreak-cabal ? null
+, hsc2hs ? null
 }:
 
 with ./lib.nix;
@@ -16,9 +18,10 @@ let
     let
 
       mkDerivation = pkgs.callPackage ./generic-builder.nix {
-        inherit stdenv;
+        inherit stdenv hsc2hs;
         inherit (pkgs) fetchurl pkgconfig glibcLocales coreutils gnugrep gnused;
-        inherit (self) ghc jailbreak-cabal;
+        inherit (self) ghc;
+        jailbreak-cabal = if jailbreak-cabal != null then jailbreak-cabal else self.jailbreak-cabal; # Use the passed-in jailbreak-cabal if it is present
         hscolour = overrideCabal self.hscolour (drv: {
           isLibrary = false;
           doHaddock = false;

@@ -31,21 +31,22 @@ let
   docDir        = "$out/share/doc/ghc/html";
   packageCfgDir = "${libDir}/package.conf.d";
   isHaskellPkg  = x: (x ? pname) && (x ? version);
-in
+  ghcCommand    = ghc.ghcCommand or "ghc";
+in builtins.trace "asdlkfjsadlkjsdfalkjfsd"
 if packages == [] then ghc else
 buildEnv {
   name = "haskell-env-${ghc.name}";
   paths = stdenv.lib.filter isHaskellPkg (stdenv.lib.closePropagation packages) ++ [ghc];
   inherit ignoreCollisions;
-  postBuild = ''
+  postBuild = builtins.trace ghcCommand ''
     . ${makeWrapper}/nix-support/setup-hook
 
-    for prg in ghc ghci ghc-${ghc.version} ghci-${ghc.version}; do
+    for prg in ${ghcCommand} ${ghcCommand}i ${ghcCommand}-${ghc.version} ${ghcCommand}i-${ghc.version}; do
       rm -f $out/bin/$prg
       makeWrapper ${ghc}/bin/$prg $out/bin/$prg         \
         --add-flags '"-B$NIX_GHC_LIBDIR"'               \
-        --set "NIX_GHC"        "$out/bin/ghc"           \
-        --set "NIX_GHCPKG"     "$out/bin/ghc-pkg"       \
+        --set "NIX_GHC"        "$out/bin/${ghcCommand}"           \
+        --set "NIX_GHCPKG"     "$out/bin/${ghcCommand}-pkg"       \
         --set "NIX_GHC_DOCDIR" "${docDir}"              \
         --set "NIX_GHC_LIBDIR" "${libDir}"
     done
@@ -53,18 +54,18 @@ buildEnv {
     for prg in runghc runhaskell; do
       rm -f $out/bin/$prg
       makeWrapper ${ghc}/bin/$prg $out/bin/$prg         \
-        --add-flags "-f $out/bin/ghc"                   \
-        --set "NIX_GHC"        "$out/bin/ghc"           \
-        --set "NIX_GHCPKG"     "$out/bin/ghc-pkg"       \
+        --add-flags "-f $out/bin/${ghcCommand}"                   \
+        --set "NIX_GHC"        "$out/bin/${ghcCommand}"           \
+        --set "NIX_GHCPKG"     "$out/bin/${ghcCommand}-pkg"       \
         --set "NIX_GHC_DOCDIR" "${docDir}"              \
         --set "NIX_GHC_LIBDIR" "${libDir}"
     done
 
-    for prg in ghc-pkg ghc-pkg-${ghc.version}; do
+    for prg in ${ghcCommand}-pkg ${ghcCommand}-pkg-${ghc.version}; do
       rm -f $out/bin/$prg
       makeWrapper ${ghc}/bin/$prg $out/bin/$prg --add-flags "${packageDBFlag}=${packageCfgDir}"
     done
 
-    $out/bin/ghc-pkg recache
+    $out/bin/${ghcCommand}-pkg recache
   '';
 }

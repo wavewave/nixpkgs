@@ -1,5 +1,5 @@
 { stdenv, fetchurl, ghc, pkgconfig, glibcLocales, coreutils, gnugrep, gnused
-, jailbreak-cabal, hscolour, cpphs
+, jailbreak-cabal, hscolour, cpphs, hsc2hs
 }:
 
 { pname
@@ -15,8 +15,8 @@
 , doHoogle ? true
 , editedCabalFile ? null
 , enableLibraryProfiling ? false
-, enableSharedExecutables ? stdenv.lib.versionOlder "7.7" ghc.version
-, enableSharedLibraries ? stdenv.lib.versionOlder "7.7" ghc.version
+, enableSharedExecutables ? true # stdenv.lib.versionOlder "7.7" ghc.version
+, enableSharedLibraries ? true # stdenv.lib.versionOlder "7.7" ghc.version
 , enableSplitObjs ? !stdenv.isDarwin # http://hackage.haskell.org/trac/ghc/ticket/4013
 , enableStaticLibraries ? true
 , extraLibraries ? []
@@ -62,7 +62,7 @@ let
                      main = defaultMain
                    '';
 
-  ghc76xOrLater = stdenv.lib.versionOlder "7.6" ghc.version;
+  ghc76xOrLater = true; #stdenv.lib.versionOlder "7.6" ghc.version;
   packageDbFlag = if ghc76xOrLater then "package-db" else "package-conf";
 
   hasActiveLibrary = isLibrary && (enableStaticLibraries || enableSharedLibraries || enableLibraryProfiling);
@@ -80,14 +80,14 @@ let
     (enableFeature enableSplitObjs "split-objs")
     (enableFeature enableLibraryProfiling "library-profiling")
     (enableFeature enableSharedLibraries "shared")
-    (optionalString (versionOlder "7" ghc.version) (enableFeature enableStaticLibraries "library-vanilla"))
-    (optionalString (versionOlder "7.4" ghc.version) (enableFeature enableSharedExecutables "executable-dynamic"))
-    (optionalString (versionOlder "7" ghc.version) (enableFeature doCheck "tests"))
-  ];
+    (optionalString (true || versionOlder "7" ghc.version) (enableFeature enableStaticLibraries "library-vanilla"))
+    (optionalString (true || versionOlder "7.4" ghc.version) (enableFeature enableSharedExecutables "executable-dynamic"))
+    (optionalString (true || versionOlder "7" ghc.version) (enableFeature doCheck "tests"))
+  ] ++ (if hsc2hs != null then [ "--with-hsc2hs=${hsc2hs}" ] else []);
 
   setupCompileFlags = [
     (optionalString (!coreSetup) "-${packageDbFlag}=$packageConfDir")
-    (optionalString (versionOlder "7.8" ghc.version) "-j$NIX_BUILD_CORES")
+    (optionalString (true || versionOlder "7.8" ghc.version) "-j$NIX_BUILD_CORES")
   ];
 
   isHaskellPkg = x: (x ? pname) && (x ? version) && (x ? env);
@@ -104,10 +104,13 @@ let
   systemBuildInputs = stdenv.lib.filter isSystemPkg allBuildInputs;
 
   ghcEnv = ghc.withPackages (p: haskellBuildInputs);
-
+  setupBuilder = ghc.setupBuilder or "ghc";
+  ghcCommand = ghc.ghcCommand or "ghc";
+  runCommand = (x: x);
+  extraConfigureFlags = ghc.extraConfigureFlags or [];
 in
 stdenv.mkDerivation ({
-  name = "${optionalString hasActiveLibrary "haskell-"}${pname}-${version}";
+  name = "${optionalString (hasActiveLibrary && pname != "ghcjs") "haskell-"}${pname}-${version}";
 
   prePhases = ["setupCompilerEnvironmentPhase"];
   preConfigurePhases = ["jailbreakPhase" "compileBuildDriverPhase"];
@@ -132,7 +135,7 @@ stdenv.mkDerivation ({
     mkdir -p $packageConfDir
 
     setupCompileFlags="${concatStringsSep " " setupCompileFlags}"
-    configureFlags="${concatStringsSep " " defaultConfigureFlags} $configureFlags"
+    configureFlags="${concatStringsSep " " (defaultConfigureFlags ++ extraConfigureFlags)} $configureFlags"
 
     local inputClosure=""
     for i in $propagatedNativeBuildInputs $nativeBuildInputs; do
@@ -152,7 +155,7 @@ stdenv.mkDerivation ({
         fi
       done
     done
-    ghc-pkg --${packageDbFlag}="$packageConfDir" recache
+    ${ghc.pkgCommand or "ghc-pkg"} --${packageDbFlag}="$packageConfDir" recache
 
     runHook postSetupCompilerEnvironment
   '';
@@ -179,7 +182,7 @@ stdenv.mkDerivation ({
     done
 
     echo setupCompileFlags: $setupCompileFlags
-    ghc $setupCompileFlags --make -o Setup -odir $TMPDIR -hidir $TMPDIR $i
+    ${setupBuilder} $setupCompileFlags --make -o Setup -odir $TMPDIR -hidir $TMPDIR $i
 
     runHook postCompileBuildDriver
   '';
@@ -190,7 +193,7 @@ stdenv.mkDerivation ({
     unset GHC_PACKAGE_PATH      # Cabal complains if this variable is set during configure.
 
     echo configureFlags: $configureFlags
-    ./Setup configure $configureFlags 2>&1 | ${coreutils}/bin/tee "$NIX_BUILD_TOP/cabal-configure.log"
+    ${runCommand "./Setup"} configure $configureFlags 2>&1 | ${coreutils}/bin/tee "$NIX_BUILD_TOP/cabal-configure.log"
     if ${gnugrep}/bin/egrep -q '^Warning:.*depends on multiple versions' "$NIX_BUILD_TOP/cabal-configure.log"; then
       echo >&2 "*** abort because of serious configure-time warning from Cabal"
       exit 1
@@ -203,20 +206,20 @@ stdenv.mkDerivation ({
 
   buildPhase = ''
     runHook preBuild
-    ./Setup build ${buildTarget}
+    ${runCommand "./Setup"} build ${buildTarget}
     runHook postBuild
   '';
 
   checkPhase = ''
     runHook preCheck
-    ./Setup test ${testTarget}
+    ${runCommand "./Setup"} test ${testTarget}
     runHook postCheck
   '';
 
   haddockPhase = ''
     runHook preHaddock
     ${optionalString (doHaddock && hasActiveLibrary) ''
-      ./Setup haddock --html \
+      ${runCommand "./Setup"} haddock --html \
         ${optionalString doHoogle "--hoogle"} \
         ${optionalString (hasActiveLibrary && hyperlinkSource) "--hyperlink-source"}
     ''}
@@ -226,12 +229,12 @@ stdenv.mkDerivation ({
   installPhase = ''
     runHook preInstall
 
-    ${if !hasActiveLibrary then "./Setup install" else ''
-      ./Setup copy
+    ${if !hasActiveLibrary then "${runCommand "./Setup"} install" else ''
+      ${runCommand "./Setup"} copy
       local packageConfDir="$out/lib/${ghc.name}/package.conf.d"
       local packageConfFile="$packageConfDir/${pname}-${version}.conf"
       mkdir -p "$packageConfDir"
-      ./Setup register --gen-pkg-config=$packageConfFile
+      ${runCommand "./Setup"} register --gen-pkg-config=$packageConfFile
       local pkgId=$( ${gnused}/bin/sed -n -e 's|^id: ||p' $packageConfFile )
       mv $packageConfFile $packageConfDir/$pkgId.conf
     ''}
@@ -255,8 +258,8 @@ stdenv.mkDerivation ({
       LANG = "en_US.UTF-8";
       LOCALE_ARCHIVE = optionalString stdenv.isLinux "${glibcLocales}/lib/locale/locale-archive";
       shellHook = ''
-        export NIX_GHC="${ghcEnv}/bin/ghc"
-        export NIX_GHCPKG="${ghcEnv}/bin/ghc"
+        export NIX_GHC="${ghcEnv}/bin/${ghcCommand}"
+        export NIX_GHCPKG="${ghcEnv}/bin/${ghcCommand}"
         export NIX_GHC_DOCDIR="${ghcEnv}/share/doc/ghc/html"
         export NIX_GHC_LIBDIR="${ghcEnv}/lib/${ghcEnv.name}"
       '';
