@@ -16,8 +16,3 @@ Communication:
 
 * [Mailing list](http://lists.science.uu.nl/mailman/listinfo/nix-dev)
 * [IRC - #nixos on freenode.net](irc://irc.freenode.net/#nixos)
-
-# Darwin stdenv notes
-
-This fork of nixpkgs is intended to provide a purer stdenv for Darwin,
-suitable for building packages on Yosemite.
