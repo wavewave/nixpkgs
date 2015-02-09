@@ -1,7 +1,7 @@
 { stdenv, fetchurl
 , coreutils, gnused, getopt, pwgen, git, tree, gnupg
 , makeWrapper
-, withX ? true, xclip, xdotool, dmenu
+, withX ? !stdenv.isDarwin, xclip, xdotool, dmenu
 }:
 
 assert withX -> xclip != null;
