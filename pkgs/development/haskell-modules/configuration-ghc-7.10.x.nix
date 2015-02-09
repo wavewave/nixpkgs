@@ -149,13 +149,6 @@ self: super: {
     version = "0.3.6.6";
   });
 
-#  tar = overrideCabal super.tar (drv: {
-#    sha256 = null;
-#    src = ../../../../tar;
-#    version = "0.4.0.2";
-#    jailbreak = true;
-#  });
-
   th-expand-syns = overrideCabal super.th-expand-syns (drv: {
     sha256 = null;
     src = ../../../../th-expand-syns;
