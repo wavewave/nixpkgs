@@ -99,7 +99,11 @@ self: super: {
 
   bzlib = overrideCabal super.bzlib (drv: {
     sha256 = null;
-    src = ../../../../bzlib;
+    src = pkgs.fetchdarcs {
+      url = http://static.ryantrinkle.com/bzlib;
+      rev = "0.5.0.5";
+      sha256 = "1s5igawbak3971zx9hh7msw08wsk97zs3a7b31ryjfrbrb0959wh";
+    };
     editedCabalFile = null;
     version = "0.5.0.5";
   });
