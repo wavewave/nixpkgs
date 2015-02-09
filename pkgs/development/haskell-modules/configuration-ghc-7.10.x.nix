@@ -185,7 +185,11 @@ self: super: {
 
   heist = overrideCabal super.heist (drv: {
     sha256 = null;
-    src = ../../../../heist;
+    src = pkgs.fetchgit {
+      url = git://github.com/ryantrinkle/heist;
+      rev = "b9f9427cf23747fbe38b318d4e4a468e9be23c31";
+      sha256 = "17641bffe7b5d4c2d585aad2f6ed8109047b1c6970ee790aa775df2ad2bf3d30";
+    };
     editedCabalFile = null;
     version = "0.14.0.2";
   });
