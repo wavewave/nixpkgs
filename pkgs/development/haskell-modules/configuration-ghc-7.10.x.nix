@@ -2,6 +2,13 @@
 
 with import ./lib.nix { inherit pkgs; };
 
+let haddockSrc = pkgs.fetchgit {
+      url = git://github.com/haskell/haddock.git;
+      rev = "89fc5605c865d0e0ce5ed7e396102e678426533b";
+      sha256 = "c89aba9760af93ebc8e083921c78ceae1069612bba1b0859f8b974178005f5c0";
+    };
+in
+
 self: super: {
 
   # Disable GHC 7.10.x core libraries.
@@ -110,7 +117,7 @@ self: super: {
 
   haddock-library = overrideCabal super.haddock-library (drv: {
     sha256 = null;
-    src = ../../../../haddock/haddock-library;
+    src = "${haddockSrc}/haddock-library";
     version = "1.2.0";
     doCheck = false;
     jailbreak = true;
@@ -118,7 +125,7 @@ self: super: {
 
   haddock-api = overrideCabal super.haddock-api (drv: {
     sha256 = null;
-    src = ../../../../haddock/haddock-api;
+    src = "${haddockSrc}/haddock-api";
     version = "2.16.0";
     doCheck = false;
     jailbreak = true;
@@ -126,7 +133,7 @@ self: super: {
 
   haddock = overrideCabal super.haddock (drv: {
     sha256 = null;
-    src = ../../../../haddock;
+    src = haddockSrc;
     version = "2.16.0";
     doCheck = false;
     jailbreak = true;
