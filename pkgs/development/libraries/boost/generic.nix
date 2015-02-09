@@ -9,7 +9,7 @@
 , enablePIC ? false
 , enableExceptions ? false
 , taggedLayout ? ((enableRelease && enableDebug) || (enableSingleThreaded && enableMultiThreaded) || (enableShared && enableStatic))
-, patches ? []
+, patches ? null
 , mpi ? null
 
 # Attributes inherit from specific versions
