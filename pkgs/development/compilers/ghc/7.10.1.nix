@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ghc, perl, gmp, ncurses }:
+{ stdenv, fetchurl, ghc, perl, gmp, ncurses, fetchgit }:
 
 let
 
@@ -9,6 +9,13 @@ let
     libraries/terminfo_CONFIGURE_OPTS += --configure-option=--with-curses-libraries="${ncurses}/lib"
     DYNAMIC_BY_DEFAULT = NO
   '';
+
+  # We've gotta patch up cabal to fix https://github.com/haskell/cabal/issues/2320, but the fix is wrong for ghcjs (it compares against version 7.9, whereas ghcjs is always 0.1.0), so we have to use sed to patch in a False (below)
+  CabalSrc = fetchgit {
+    url = git://github.com/haskell/cabal.git;
+    rev = "3c0e6480d5057dd616457a0ac0458e60946c9849";
+    sha256 = "29c3014f8401cfa350b9688a9cc9847b73a520ab8f8a70e10d1cbe19c9282f61";
+  };
 
 in
 
@@ -24,6 +31,8 @@ stdenv.mkDerivation rec {
   buildInputs = [ ghc perl ];
 
   preConfigure = ''
+    cp -r ${CabalSrc}/* libraries/Cabal
+    sed -i 's/HcPkg.useSingleFileDb = .*/HcPkg.useSingleFileDb = False/' libraries/Cabal/Cabal/Distribution/Simple/GHCJS.hs
     echo >mk/build.mk "${buildMK}"
     sed -i -e 's|-isysroot /Developer/SDKs/MacOSX10.5.sdk||' configure
   '' + stdenv.lib.optionalString (!stdenv.isDarwin) ''
