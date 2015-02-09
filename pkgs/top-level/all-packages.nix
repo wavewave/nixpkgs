@@ -6878,6 +6878,8 @@ let
 
   openjpeg = callPackage ../development/libraries/openjpeg { lcms = lcms2; };
 
+  openpam = callPackage ../development/libraries/openpam { };
+
   openscenegraph = callPackage ../development/libraries/openscenegraph {
     giflib = giflib_4_1;
     ffmpeg = ffmpeg_0_10;
@@ -8953,7 +8955,7 @@ let
 
   nss_ldap = callPackage ../os-specific/linux/nss_ldap { };
 
-  pam = callPackage ../os-specific/linux/pam { };
+  pam = if stdenv.isDarwin then openpam else callPackage ../os-specific/linux/pam { };
 
   # pam_bioapi ( see http://www.thinkwiki.org/wiki/How_to_enable_the_fingerprint_reader )
 
