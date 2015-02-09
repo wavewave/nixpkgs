@@ -141,7 +141,11 @@ self: super: {
 
   stringsearch = overrideCabal super.stringsearch (drv: {
     sha256 = null;
-    src = ../../../../stringsearch;
+    src = pkgs.fetchhg {
+      url = https://bitbucket.org/ryantrinkle/stringsearch;
+      rev = "9709b7d1b244";
+      sha256 = "12xcmyh4rzi7wnfflq8br3xl37aphdb61q7wj1cpzvi1zyngff64";
+    };
     version = "0.3.6.6";
   });
 
