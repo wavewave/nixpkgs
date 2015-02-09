@@ -151,7 +151,11 @@ self: super: {
 
   th-expand-syns = overrideCabal super.th-expand-syns (drv: {
     sha256 = null;
-    src = ../../../../th-expand-syns;
+    src = pkgs.fetchgit {
+      url = git://github.com/DanielSchuessler/th-expand-syns;
+      rev = "25bf93ee8545f34ddd51192b230bbbc94d47039d";
+      sha256 = "8aed02abfa77930f98a2ae9f3b55d905e4db6df5c7774e981289ce70e9ee83a7";
+    };
     version = "0.4.0.2";
     jailbreak = true;
   });
