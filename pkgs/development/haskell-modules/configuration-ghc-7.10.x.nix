@@ -204,7 +204,11 @@ self: super: {
   });
   haskell-src-meta = overrideCabal super.haskell-src-meta (drv: {
     sha256 = null;
-    src = ../../../../haskell-src-meta;
+    src = pkgs.fetchgit {
+      url = git://github.com/bmillwood/haskell-src-meta;
+      rev = "1d048974bd3027576e6217a390bd87448cd817b2";
+      sha256 = "21cea526f04083b706bd738ccf92618711660818971622b5aa277407dcdec9f5";
+    };
     version = "0.6.0.8";
     jailbreak = true;
   });
