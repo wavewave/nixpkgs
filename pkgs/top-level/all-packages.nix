@@ -6916,6 +6916,8 @@ let
 
   p11_kit = callPackage ../development/libraries/p11-kit { };
 
+  pam-u2f = callPackage ../development/libraries/pam-u2f { inherit (darwin) IOKit; };
+
   paperkey = callPackage ../tools/security/paperkey { };
 
   pangoxsl = callPackage ../development/libraries/pangoxsl { };
