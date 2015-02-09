@@ -1402,7 +1402,7 @@ let
 
   go-mtpfs = callPackage ../tools/filesystems/go-mtpfs { };
 
-  googleAuthenticator = callPackage ../os-specific/linux/google-authenticator { };
+  googleAuthenticator = callPackage ../tools/security/google-authenticator { };
 
   gource = callPackage ../applications/version-management/gource { };
 
