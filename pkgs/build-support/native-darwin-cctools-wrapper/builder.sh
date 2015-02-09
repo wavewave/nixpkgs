@@ -6,6 +6,11 @@ do
     ln -s "/usr/bin/$i" "$out/bin/"
 done
 
+for i in $sbinaries
+do
+    ln -s "/usr/sbin/$i" "$out/bin/"
+done
+
 # MIG assumes the standard Darwin core utilities (e.g., `rm -d'), so
 # let it see the impure directories.
 cat > "$out/bin/mig" <<EOF

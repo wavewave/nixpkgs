@@ -10,6 +10,8 @@ stdenv.mkDerivation {
       "size" "strings" "strip" "dsymutil" "libtool" "lipo"
       "install_name_tool" "arch" "sw_vers"
     ];
-
+  sbinaries = 
+    [ "sysctl"
+    ]; 
   builder = ./builder.sh;
 }
