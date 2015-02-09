@@ -6833,7 +6833,9 @@ let
 
   openbr = callPackage ../development/libraries/openbr { };
 
-  openbsm = callPackage ../development/libraries/openbsm { };
+  openbsm = callPackage ../development/libraries/openbsm {
+    inherit (darwin) bootstrap_cmds;
+  };
 
   opencascade = callPackage ../development/libraries/opencascade { };
 
