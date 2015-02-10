@@ -100,6 +100,7 @@ stdenv.mkDerivation {
   setupHook = ./setup-hook.sh;
 
   meta = {
+    branch = "1.4";
     homepage = http://golang.org/;
     description = "The Go Programming language";
     license = "BSD";

@@ -523,10 +523,7 @@ let
 
   ascii = callPackage ../tools/text/ascii { };
 
-  asymptote = builderDefsPackage ../tools/graphics/asymptote {
-    inherit freeglut ghostscriptX imagemagick fftw boehmgc
-      mesa ncurses readline gsl libsigsegv python zlib perl
-      texinfo xz;
+  asymptote = callPackage ../tools/graphics/asymptote {
     texLive = texLiveAggregationFun {
       paths = [ texLive texLiveExtra texLiveCMSuper ];
     };
@@ -7166,8 +7163,8 @@ let
 
   SDL2 = callPackage ../development/libraries/SDL2 {
     openglSupport = mesaSupported;
-    alsaSupport = true;
-    x11Support = true;
+    alsaSupport = (!stdenv.isDarwin);
+    x11Support = (!stdenv.isDarwin);
     pulseaudioSupport = false; # better go through ALSA
   };
 
@@ -8568,8 +8565,6 @@ let
 
   iw = callPackage ../os-specific/linux/iw { };
 
-  iwlwifi = callPackage ../os-specific/linux/firmware/iwlwifi { };
-
   iwlegacy = callPackage ../os-specific/linux/firmware/iwlegacy { };
 
   jfbview = callPackage ../os-specific/linux/jfbview { };
@@ -8672,6 +8667,16 @@ let
   };
 
   linux_3_18 = makeOverridable (import ../os-specific/linux/kernel/linux-3.18.nix) {
+    inherit fetchurl stdenv perl buildLinux;
+    kernelPatches = [ kernelPatches.bridge_stp_helper ]
+      ++ lib.optionals ((platform.kernelArch or null) == "mips")
+      [ kernelPatches.mips_fpureg_emu
+        kernelPatches.mips_fpu_sigill
+        kernelPatches.mips_ext3_n32
+      ];
+  };
+
+  linux_3_19 = makeOverridable (import ../os-specific/linux/kernel/linux-3.19.nix) {
     inherit fetchurl stdenv perl buildLinux;
     kernelPatches = [ kernelPatches.bridge_stp_helper ]
       ++ lib.optionals ((platform.kernelArch or null) == "mips")
@@ -8834,12 +8839,12 @@ let
   };
 
   # The current default kernel / kernel modules.
-  linux = linuxPackages.kernel;
   linuxPackages = linuxPackages_3_14;
+  linux = linuxPackages.kernel;
 
   # Update this when adding the newest kernel major version!
-  linux_latest = pkgs.linux_3_18;
-  linuxPackages_latest = pkgs.linuxPackages_3_18;
+  linuxPackages_latest = pkgs.linuxPackages_3_19;
+  linux_latest = linuxPackages_latest.kernel;
 
   # Build the kernel modules for the some of the kernels.
   linuxPackages_3_2 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_2 linuxPackages_3_2);
@@ -8850,6 +8855,7 @@ let
   linuxPackages_3_12 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_12 linuxPackages_3_12);
   linuxPackages_3_14 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_14 linuxPackages_3_14);
   linuxPackages_3_18 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_18 linuxPackages_3_18);
+  linuxPackages_3_19 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_19 linuxPackages_3_19);
   linuxPackages_testing = recurseIntoAttrs (linuxPackagesFor pkgs.linux_testing linuxPackages_testing);
   linuxPackages_custom = {version, src, configfile}:
                            let linuxPackages_self = (linuxPackagesFor (pkgs.linuxManualConfig {inherit version src configfile;
@@ -11186,7 +11192,7 @@ let
   };
 
   sakura = callPackage ../applications/misc/sakura {
-    inherit (gnome) vte;
+    inherit (gnome3) vte;
   };
 
   sbagen = callPackage ../applications/misc/sbagen { };
@@ -11817,6 +11823,10 @@ let
   xawtv = callPackage ../applications/video/xawtv { };
 
   xbindkeys = callPackage ../tools/X11/xbindkeys { };
+
+  xbindkeys-config = callPackage ../tools/X11/xbindkeys-config/default.nix {
+    gtk = gtk2;
+  };
 
   xbmcPlain = callPackage ../applications/video/xbmc {
     ffmpeg = ffmpeg_1;
