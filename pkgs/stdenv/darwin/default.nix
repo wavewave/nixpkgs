@@ -118,7 +118,7 @@ in rec {
           buildCommand = ''
             mkdir -p $out
             ln -s ${bootstrapTools}/lib $out/lib
-            ln -s ${bootstrapTools}/include-libSystem $out/include
+            ln -s ${bootstrapTools}/include-Libsystem $out/include
           '';
         };
         dyld = bootstrapTools;
