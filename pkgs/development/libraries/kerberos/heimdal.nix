@@ -25,7 +25,7 @@ stdenv.mkDerivation rec {
     "--without-x"
   ];
 
-  enableParallelBuilding = true;
+  enableParallelBuilding = false;
 
   # We need to build hcrypt for applications like samba
   postBuild = ''
