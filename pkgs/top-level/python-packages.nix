@@ -1092,15 +1092,19 @@ let
 
   boto = buildPythonPackage rec {
     name = "boto-${version}";
-    version = "2.34.0";
+    version = "2.36.0";
 
     src = pkgs.fetchurl {
       url = "https://github.com/boto/boto/archive/${version}.tar.gz";
-      sha256 = "08zavyn02qng9y0251a9mrlkb3aw33m7gx5kc97hwngl3xk3s777";
+      sha256 = "1zrlmri89q2090yh9ylx798q4yk54y39v7w7xj101fnwc1r6jlqr";
     };
 
-    # The tests seem to require AWS credentials.
-    doCheck = false;
+    checkPhase = ''
+      ${python.interpreter} tests/test.py default
+    '';
+
+    buildInputs = [ self.nose self.mock ];
+    propagatedBuildInputs = [ self.requests self.httpretty ];
 
     meta = {
       homepage = https://github.com/boto/boto;
@@ -7217,11 +7221,11 @@ let
 
   pgcli = buildPythonPackage rec {
     name = "pgcli-${version}";
-    version = "0.14.0";
+    version = "0.15.4";
 
     src = pkgs.fetchurl {
+      sha256 = "1s57krfa5kpn15ma7dcivizgn987j24i6cxrnjf9hnnann0q26cd";
       url = "https://pypi.python.org/packages/source/p/pgcli/${name}.tar.gz";
-      sha256 = "0x31b3kvybdvd413h6b5iq4b5vv2x30ff1r00gs6ana0xpzzrqxp";
     };
 
     propagatedBuildInputs = with self; [ click jedi prompt_toolkit psycopg2 pygments sqlparse ];
@@ -7232,7 +7236,7 @@ let
         Rich command-line interface for PostgreSQL with auto-completion and
         syntax highlighting.
       '';
-      homepage = http://pgcli.com/about;
+      homepage = http://pgcli.com;
       license = with licenses; [ bsd3 ];
       maintainers = with maintainers; [ nckx ];
     };
@@ -7487,9 +7491,8 @@ let
   protobuf = buildPythonPackage rec {
     inherit (pkgs.protobuf) name src;
 
-    propagatedBuildInputs = with self; [ pkgs.protobuf google_apputils  ];
-    sourceRoot = "${name}/python";
-
+    propagatedBuildInputs = with self; [ pkgs.protobuf google_apputils ];
+    sourceRoot = "${name}-src/python";
 
     meta = {
       description = "Protocol Buffers are Google's data interchange format";
@@ -9805,12 +9808,12 @@ let
   };
 
   sympy = buildPythonPackage rec {
-    name = "sympy-0.7.4";
+    name = "sympy-0.7.6";
     disabled = isPy34;  # some tests fail
 
     src = pkgs.fetchurl {
       url    = "https://pypi.python.org/packages/source/s/sympy/${name}.tar.gz";
-      sha256 = "0h1b9mx0snyyybj1x1ga69qssgjzkkgx2rw6nddjhyz1fknf8ywh";
+      sha256 = "19yp0gy4i7p4g6l3b8vaqkj9qj7yqb5kqy0qgbdagpzgkdz958yz";
     };
 
     buildInputs = [ pkgs.glibcLocales ];
@@ -10245,11 +10248,11 @@ let
   };
 
   sqlalchemy9 = buildPythonPackage rec {
-    name = "SQLAlchemy-0.9.4";
+    name = "SQLAlchemy-0.9.8";
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/S/SQLAlchemy/${name}.tar.gz";
-      md5 = "c008ea5e2565ec1418ee8461393a99b1";
+      md5 = "470ca4da4a0081efc830f0d90dd91682";
     };
 
     buildInputs = with self; [ nose mock ];
@@ -10545,7 +10548,6 @@ let
 
     src = pkgs.fetchurl {
       url = "https://pypi.python.org/packages/source/t/taskw/${name}.tar.gz";
-      # md5 = "9f3ce2eaff9a3986d04632547168894d"; # provided by pypi website.
       sha256 = "341a165a1c2ef94fb1c2a49a785357377f04a0d55cabe9563179849497e47146";
     };
 
@@ -12274,6 +12276,8 @@ let
       rev = "refs/tags/${version}";
       sha256 = "0nyqb0v8yrkqnrqsh1hlhvzr2pyvkxvkw701p3gpsvk29c0gb5n6";
     };
+
+    doCheck = false;  # some tests use networking
 
     buildInputs = with self; [ mock unittest2 ];
     propagatedBuildInputs = with self; [ requests ];
