@@ -67,6 +67,7 @@ self: super: {
   contravariant = addBuildDepend super.contravariant self.tagged;
   reflection = dontHaddock (addBuildDepend super.reflection self.tagged);
 
+  ghc-mod = addBuildDepend super.ghc-mod super.convertible;
 } // {
 
   # Not on Hackage.

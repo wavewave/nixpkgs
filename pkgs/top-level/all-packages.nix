@@ -12,9 +12,9 @@
   # null, the default standard environment is used.
   bootStdenv ? null
 
-, # Non-GNU/Linux OSes are currently "impure" platforms, with their libc
-  # outside of the store.  Thus, GCC, GFortran, & co. must always look for
-  # files in standard system directories (/usr/include, etc.)
+, # Non-GNU/Linux (and darwin) OSes are currently "impure" platforms, with
+  # their libc outside of the store.  Thus, GCC, GFortran, & co. must always
+  # look for files in standard system directories (/usr/include, etc.)
   noSysDirs ? (system != "x86_64-freebsd" && system != "i686-freebsd"
                && system != "x86_64-kfreebsd-gnu")
 
@@ -373,6 +373,12 @@ let
     inherit sha256;
   };
 
+  fetchFromGitorious = { owner, repo, rev, sha256, name ? "${repo}-${rev}-src" }: fetchzip {
+    inherit name;
+    url = "https://gitorious.org/${owner}/${repo}/archive/${rev}.tar.gz";
+    inherit sha256;
+  };
+
   resolveMirrorURLs = {url}: fetchurl {
     showURLs = true;
     inherit url;
@@ -523,10 +529,7 @@ let
 
   ascii = callPackage ../tools/text/ascii { };
 
-  asymptote = builderDefsPackage ../tools/graphics/asymptote {
-    inherit freeglut ghostscriptX imagemagick fftw boehmgc
-      mesa ncurses readline gsl libsigsegv python zlib perl
-      texinfo xz;
+  asymptote = callPackage ../tools/graphics/asymptote {
     texLive = texLiveAggregationFun {
       paths = [ texLive texLiveExtra texLiveCMSuper ];
     };
@@ -566,8 +569,6 @@ let
   grc = callPackage ../tools/misc/grc { };
 
   lastpass-cli = callPackage ../tools/security/lastpass-cli { };
-
-  otool = callPackage ../os-specific/darwin/otool { };
 
   pass = callPackage ../tools/security/pass {
     gnupg = gnupg1compat;
@@ -689,6 +690,14 @@ let
 
   catdoc = callPackage ../tools/text/catdoc { };
 
+  cdemu-daemon = callPackage ../misc/emulators/cdemu/daemon.nix { };
+
+  cdemu-client = callPackage ../misc/emulators/cdemu/client.nix { };
+
+  gcdemu = callPackage ../misc/emulators/cdemu/gui.nix { };
+
+  image-analyzer = callPackage ../misc/emulators/cdemu/analyzer.nix { };
+
   ccnet = callPackage ../tools/networking/ccnet { };
 
   cloud-init = callPackage ../tools/virtualization/cloud-init { };
@@ -718,6 +727,8 @@ let
   };
 
   cv = callPackage ../tools/misc/cv { };
+
+  contacts = callPackage ../tools/misc/contacts { };
 
   datamash = callPackage ../tools/misc/datamash { };
 
@@ -1379,9 +1390,7 @@ let
   # use config.packageOverrides if you prefer original gnupg1
   gnupg1 = gnupg1compat;
 
-  gnupg20 = callPackage ../tools/security/gnupg/20.nix {
-    libgcrypt = libgcrypt_1_6;
-  };
+  gnupg20 = callPackage ../tools/security/gnupg/20.nix {};
 
   gnupg21 = callPackage ../tools/security/gnupg/21.nix {
     libgcrypt = libgcrypt_1_6;
@@ -1406,7 +1415,7 @@ let
 
   go-mtpfs = callPackage ../tools/filesystems/go-mtpfs { };
 
-  googleAuthenticator = callPackage ../os-specific/linux/google-authenticator { };
+  googleAuthenticator = callPackage ../tools/security/google-authenticator { };
 
   gource = callPackage ../applications/version-management/gource { };
 
@@ -1703,8 +1712,13 @@ let
 
   ninka = callPackage ../development/tools/misc/ninka { };
 
-  nodejs = callPackage ../development/web/nodejs { };
-  nodejs-unstable = callPackage ../development/web/nodejs { unstableVersion = true; };
+  nodejs = callPackage ../development/web/nodejs {
+    inherit (darwin.apple_sdk.frameworks) CoreServices ApplicationServices;
+  };
+  nodejs-unstable = callPackage ../development/web/nodejs {
+    inherit (darwin.apple_sdk.frameworks) CoreServices ApplicationServices;
+    unstableVersion = true;
+  };
 
   nodePackages = recurseIntoAttrs (
     callPackage ./node-packages.nix { self = nodePackages; }
@@ -1749,6 +1763,8 @@ let
   libibverbs = callPackage ../development/libraries/libibverbs { };
 
   librdmacm = callPackage ../development/libraries/librdmacm { };
+
+  limesurvey = callPackage ../servers/limesurvey { };
 
   logcheck = callPackage ../tools/system/logcheck {
     inherit (perlPackages) mimeConstruct;
@@ -2054,6 +2070,8 @@ let
 
   obexd = callPackage ../tools/bluetooth/obexd { };
 
+  openfortivpn = callPackage ../tools/networking/openfortivpn { };
+
   obexfs = callPackage ../tools/bluetooth/obexfs { };
 
   obexftp = callPackage ../tools/bluetooth/obexftp { };
@@ -2314,6 +2332,8 @@ let
 
   pastebinit = callPackage ../tools/misc/pastebinit { };
 
+  polygraph = callPackage ../tools/networking/polygraph { };
+
   psmisc = callPackage ../os-specific/linux/psmisc { };
 
   pstoedit = callPackage ../tools/graphics/pstoedit { };
@@ -2459,6 +2479,8 @@ let
   rzip = callPackage ../tools/compression/rzip { };
 
   s3backer = callPackage ../tools/filesystems/s3backer { };
+  
+  s3fs = callPackage ../tools/filesystems/s3fs { };
 
   s3cmd = callPackage ../tools/networking/s3cmd { };
 
@@ -3162,6 +3184,7 @@ let
     stdenv = clangStdenv;
     libc = glibc;
     binutils = binutils;
+    shell = bash;
     inherit coreutils zlib;
     extraPackages = [ libcxx ];
     nativeTools = false;
@@ -3169,8 +3192,8 @@ let
   };
 
   #Use this instead of stdenv to build with clang
-  clangStdenv = if stdenv.isDarwin then stdenv else lowPrio (stdenvAdapters.overrideCC stdenv clang);
-  libcxxStdenv = stdenvAdapters.overrideCC stdenv (clangWrapSelf llvmPackages.clang);
+  clangStdenv  = if stdenv.isDarwin then stdenv else lowPrio (stdenvAdapters.overrideCC stdenv clang);
+  libcxxStdenv = if stdenv.isDarwin then stdenv else stdenvAdapters.overrideCC stdenv (clangWrapSelf llvmPackages.clang);
 
   clean = callPackage ../development/compilers/clean { };
 
@@ -3199,8 +3222,6 @@ let
 
   gcc       = gcc48;
   gcc_multi = gcc48_multi;
-
-  gccApple = throw "gccApple is no longer supported";
 
   gcc34 = wrapCC (import ../development/compilers/gcc/3.4 {
     inherit fetchurl stdenv noSysDirs;
@@ -3331,6 +3352,7 @@ let
       if crossSystem != null && crossSystem.config == "i586-pc-gnu"
       then gnu.libpthreadCross
       else null;
+    inherit (darwin) cxxfilt;
   }));
 
   gcc48_multi =
@@ -3472,7 +3494,15 @@ let
 
   # Import Haskell infrastructure.
 
-  haskell = let pkgs_       = pkgs // { gmp = gmp.override { withStatic = true; }; };
+  haskell = let pkgs_       = pkgs // { gmp = gmp.override { withStatic = true; }; } //
+                                # on Darwin, use Darwin's libiconv symbol naming
+                                # convention. the bootstrap compiler assumes it and
+                                # disentangling Darwin and GNU libiconv during the
+                                # compiler build from source is too difficult for me.
+                                # TODO: remove this someday
+                                lib.optionalAttrs stdenv.isDarwin {
+                                  libiconv = pkgs.darwin.libiconv;
+                                };
                 callPackage = newScope pkgs_;
                 newScope    = extra: lib.callPackageWith (pkgs_ // pkgs_.xorg // extra);
             in callPackage ./haskell-defaults.nix { pkgs = pkgs_; inherit callPackage newScope; };
@@ -3706,6 +3736,8 @@ let
 
   mozart-binary = callPackage ../development/compilers/mozart/binary.nix { };
   mozart = mozart-binary;
+
+  nim = callPackage ../development/compilers/nim { };
 
   neko = callPackage ../development/compilers/neko { };
 
@@ -4139,9 +4171,10 @@ let
     cc = baseCC;
     libc = libc;
     inherit stdenv binutils coreutils zlib;
+    inherit (darwin) dyld;
   };
 
-  wrapCC = wrapCCWith (makeOverridable (import ../build-support/cc-wrapper)) glibc;
+  wrapCC = wrapCCWith (makeOverridable (import ../build-support/cc-wrapper)) stdenv.cc.libc;
   # legacy version, used for gnat bootstrapping
   wrapGCC-old = baseGCC: (makeOverridable (import ../build-support/gcc-wrapper-old)) {
     nativeTools = stdenv.cc.nativeTools or false;
@@ -4330,6 +4363,8 @@ let
 
   perl = if system != "i686-cygwin" then perl520 else sysPerl;
 
+  perlPure = perl.override { inherit fetchurl; };
+
   php = php54;
 
   phpPackages = recurseIntoAttrs (import ./php-packages.nix {
@@ -4371,6 +4406,8 @@ let
   };
   python27 = callPackage ../development/interpreters/python/2.7 {
     self = python27;
+    inherit (darwin) configd;
+    corefoundation = darwin.CF;
   };
   python32 = callPackage ../development/interpreters/python/3.2 {
     self = python32;
@@ -4380,6 +4417,7 @@ let
   };
   python34 = hiPrio (callPackage ../development/interpreters/python/3.4 {
     self = python34;
+    inherit (darwin) configd;
   });
   pypy = callPackage ../development/interpreters/pypy {
     self = pypy;
@@ -4438,12 +4476,12 @@ let
   bundlerEnv = callPackage ../development/interpreters/ruby/bundler-env { };
 
   ruby_1_8_7 = callPackage ../development/interpreters/ruby/ruby-1.8.7.nix { };
-  ruby_1_9_3 = callPackage ../development/interpreters/ruby/ruby-1.9.3.nix { };
+  ruby_1_9_3 = callPackage ../development/interpreters/ruby/ruby-1.9.3.nix { libobjc = darwin.libobjc; };
   ruby_2_0_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.0.0.nix { });
   ruby_2_1_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.0.nix { });
   ruby_2_1_1 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.1.nix { });
   ruby_2_1_2 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.2.nix { });
-  ruby_2_1_3 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.3.nix { });
+  ruby_2_1_3 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.1.3.nix { libobjc = darwin.libobjc; });
   ruby_2_2_0 = lowPrio (callPackage ../development/interpreters/ruby/ruby-2.2.0.nix { });
 
   # Ruby aliases
@@ -4614,11 +4652,11 @@ let
 
   bam = callPackage ../development/tools/build-managers/bam {};
 
-  binutils = if stdenv.isDarwin
-    then import ../build-support/native-darwin-cctools-wrapper {inherit stdenv;}
-    else callPackage ../development/tools/misc/binutils {
-      inherit noSysDirs;
-    };
+  # TODO: pull c++filt (and maybe strip) out of binutils_raw for darwin, since we want those.
+  # Probably needs to be some sort of buildEnv to merge the parts of the two that we want.
+  binutils = if stdenv.isDarwin then darwin.cctools else binutils_raw;
+
+  binutils_raw = callPackage ../development/tools/misc/binutils { inherit noSysDirs; };
 
   binutils_nogold = lowPrio (callPackage ../development/tools/misc/binutils {
     inherit noSysDirs;
@@ -4626,9 +4664,9 @@ let
   });
 
   binutilsCross =
-    if crossSystem != null && crossSystem.libc == "libSystem" then darwin.cctools
+    if crossSystem != null && crossSystem.libc == "libSystem" then darwin.cctools_cross
     else lowPrio (forceNativeDrv (import ../development/tools/misc/binutils {
-      inherit stdenv fetchurl zlib bison;
+      inherit stdenv fetchurl zlib bison libintlOrEmpty;
       noSysDirs = true;
       cross = assert crossSystem != null; crossSystem;
     }));
@@ -4700,10 +4738,7 @@ let
 
   ctodo = callPackage ../applications/misc/ctodo { };
 
-  cmake = callPackage ../development/tools/build-managers/cmake {
-    wantPS = stdenv.isDarwin;
-    ps     = if stdenv.isDarwin then darwin.ps else null;
-  };
+  cmake = callPackage ../development/tools/build-managers/cmake { };
 
   cmake-3_0 = callPackage ../development/tools/build-managers/cmake/3.0.nix { };
   cmake264 = callPackage ../development/tools/build-managers/cmake/264.nix { };
@@ -4779,6 +4814,7 @@ let
 
   doxygen = callPackage ../development/tools/documentation/doxygen {
     qt4 = null;
+    inherit (darwin.apple_sdk.frameworks) CoreServices;
   };
 
   doxygen_gui = lowPrio (doxygen.override { inherit qt4; });
@@ -4859,6 +4895,8 @@ let
   iconnamingutils = callPackage ../development/tools/misc/icon-naming-utils {
     inherit (perlPackages) XMLSimple;
   };
+
+  include-what-you-use = callPackage ../development/tools/analysis/include-what-you-use { };
 
   indent = callPackage ../development/tools/misc/indent { };
 
@@ -5198,9 +5236,15 @@ let
 
   boolstuff = callPackage ../development/libraries/boolstuff { };
 
-  boost155 = callPackage ../development/libraries/boost/1.55.nix { };
-  boost156 = callPackage ../development/libraries/boost/1.56.nix { };
-  boost157 = callPackage ../development/libraries/boost/1.57.nix { };
+  boost155 = callPackage ../development/libraries/boost/1.55.nix {
+    toolset = if stdenv.isDarwin then "clang" else null;
+  };
+  boost156 = callPackage ../development/libraries/boost/1.56.nix {
+    toolset = if stdenv.isDarwin then "clang" else null;
+  };
+  boost157 = callPackage ../development/libraries/boost/1.57.nix {
+    toolset = if stdenv.isDarwin then "clang" else null;
+  };
   boost = boost157;
 
   boost_process = callPackage ../development/libraries/boost-process { };
@@ -5242,7 +5286,7 @@ let
 
   cgui = callPackage ../development/libraries/cgui {};
 
-  check = callPackage ../development/libraries/check { };
+  check = callPackage ../development/libraries/check { inherit (darwin.apple_sdk.frameworks) CoreServices; };
 
   chipmunk = builderDefsPackage (import ../development/libraries/chipmunk) {
     inherit cmake freeglut mesa;
@@ -5768,14 +5812,14 @@ let
   hamlib = callPackage ../development/libraries/hamlib { };
 
   # TODO : Add MIT Kerberos and let admin choose.
-  # TODO : Fix kerberos on Darwin
-  kerberos = if stdenv.isDarwin then null else heimdal;
+  kerberos = heimdal;
 
   heimdal = callPackage ../development/libraries/kerberos/heimdal.nix {
     openldap = openldap.override {
       cyrus_sasl = cyrus_sasl.override { kerberos = null; };
     };
     cyrus_sasl = cyrus_sasl.override { kerberos = null; };
+    inherit (darwin) bootstrap_cmds Security configd;
   };
 
   harfbuzz = callPackage ../development/libraries/harfbuzz { };
@@ -5899,6 +5943,7 @@ let
     openldap = openldap.override {
       cyrus_sasl = cyrus_sasl.override { kerberos = null; };
     };
+    inherit (darwin) bootstrap_cmds;
   };
 
   LASzip = callPackage ../development/libraries/LASzip { };
@@ -6249,19 +6294,10 @@ let
 
   libgsf = callPackage ../development/libraries/libgsf { };
 
-  libiconv = callPackage ../development/libraries/libiconv { };
-
-  libiconvOrEmpty = if libiconvOrNull == null then [] else [libiconv];
-
-  libiconvOrNull =
-    if stdenv.cc.libc or null != null || stdenv.isGlibc
-    then null
-    else libiconv;
-
-  # The logic behind this attribute is broken: libiconvOrNull==null does
-  # NOT imply libiconv=glibc! On Darwin, for example, we have a native
-  # libiconv library which is not glibc.
-  libiconvOrLibc = if libiconvOrNull == null then stdenv.cc.libc else libiconv;
+  libiconv =
+    if stdenv.isGlibc
+    then stdenv.cc.libc
+    else callPackage ../development/libraries/libiconv { };
 
   # On non-GNU systems we need GNU Gettext for libintl.
   libintlOrEmpty = stdenv.lib.optional (!stdenv.isLinux) gettext;
@@ -6505,7 +6541,9 @@ let
 
   libgeotiff = callPackage ../development/libraries/libgeotiff { };
 
-  libu2f-host = callPackage ../development/libraries/libu2f-host { };
+  libu2f-host = callPackage ../development/libraries/libu2f-host { inherit (darwin) IOKit; };
+
+  libu2f-server = callPackage ../development/libraries/libu2f-server { };
 
   libunistring = callPackage ../development/libraries/libunistring { };
 
@@ -6525,15 +6563,16 @@ let
 
   liburcu = callPackage ../development/libraries/liburcu { };
 
-  libusb = callPackage ../development/libraries/libusb {};
+  libusb = callPackage ../development/libraries/libusb { };
 
-  libusb1 = callPackage ../development/libraries/libusb1 { };
+  libusb1 = callPackage ../development/libraries/libusb1 {
+    libobjc = darwin.libobjc;
+    iokit   = darwin.IOKit;
+  };
 
   libunwind = if stdenv.isDarwin
-    then callPackage ../development/libraries/libunwind/native.nix {}
+    then darwin.libunwind
     else callPackage ../development/libraries/libunwind { };
-
-  libunwindNative = callPackage ../development/libraries/libunwind/native.nix {};
 
   libuvVersions = recurseIntoAttrs (callPackage ../development/libraries/libuv { });
 
@@ -6558,6 +6597,7 @@ let
   libviper = callPackage ../development/libraries/libviper { };
 
   libvpx = callPackage ../development/libraries/libvpx { };
+  libvpx-git = callPackage ../development/libraries/libvpx/git.nix { };
 
   libvterm = callPackage ../development/libraries/libvterm { };
 
@@ -6824,6 +6864,10 @@ let
 
   openbr = callPackage ../development/libraries/openbr { };
 
+  openbsm = callPackage ../development/libraries/openbsm {
+    inherit (darwin) bootstrap_cmds;
+  };
+
   opencascade = callPackage ../development/libraries/opencascade { };
 
   opencascade_6_5 = callPackage ../development/libraries/opencascade/6.5.nix {
@@ -6864,6 +6908,8 @@ let
 
   openjpeg = callPackage ../development/libraries/openjpeg { lcms = lcms2; };
 
+  openpam = callPackage ../development/libraries/openpam { };
+
   openscenegraph = callPackage ../development/libraries/openscenegraph {
     giflib = giflib_4_1;
     ffmpeg = ffmpeg_0_10;
@@ -6897,6 +6943,8 @@ let
   };
 
   p11_kit = callPackage ../development/libraries/p11-kit { };
+
+  pam-u2f = callPackage ../development/libraries/pam-u2f { inherit (darwin) IOKit; };
 
   paperkey = callPackage ../tools/security/paperkey { };
 
@@ -7146,8 +7194,8 @@ let
 
   SDL2 = callPackage ../development/libraries/SDL2 {
     openglSupport = mesaSupported;
-    alsaSupport = true;
-    x11Support = true;
+    alsaSupport = (!stdenv.isDarwin);
+    x11Support = (!stdenv.isDarwin);
     pulseaudioSupport = false; # better go through ALSA
   };
 
@@ -7661,7 +7709,7 @@ let
 
   ### DEVELOPMENT / PERL MODULES
 
-  buildPerlPackage = import ../development/perl-modules/generic perl;
+  buildPerlPackage = import ../development/perl-modules/generic perlPure;
 
   perlPackages = recurseIntoAttrs (import ./perl-packages.nix {
     inherit pkgs;
@@ -8141,6 +8189,7 @@ let
   radius = callPackage ../servers/radius { };
 
   redis = callPackage ../servers/nosql/redis { };
+  redis3 = callPackage ../servers/nosql/redis/3.0.nix { };
 
   redstore = callPackage ../servers/http/redstore { };
 
@@ -8233,6 +8282,8 @@ let
       openssl;
   });
   squid = squids.squid31; # has ipv6 support
+
+  sslh = callPackage ../servers/sslh { };
 
   thttpd = callPackage ../servers/http/thttpd { };
 
@@ -8400,31 +8451,24 @@ let
 
   darwin = let
     cmdline = callPackage ../os-specific/darwin/command-line-tools {};
-  in rec {
-
-    cctools = forceNativeDrv (callPackage ../os-specific/darwin/cctools/port.nix {
+    apple-source-releases = import ../os-specific/darwin/apple-source-releases { inherit stdenv fetchurl pkgs; };
+  in apple-source-releases // rec {
+    cctools_cross = forceNativeDrv (callPackage (callPackage ../os-specific/darwin/cctools/port.nix {}).cross {
       cross = assert crossSystem != null; crossSystem;
       inherit maloader;
       xctoolchain = xcode.toolchain;
     });
 
-    cctools_native = (callPackage ../os-specific/darwin/cctools/port.nix {}).native;
+    cctools = (callPackage ../os-specific/darwin/cctools/port.nix { inherit libobjc; }).native;
 
-    maloader = callPackage ../os-specific/darwin/maloader {
-      inherit opencflite;
-    };
+    maloader = callPackage ../os-specific/darwin/maloader { inherit opencflite; };
 
     opencflite = callPackage ../os-specific/darwin/opencflite {};
 
     xcode = callPackage ../os-specific/darwin/xcode {};
 
-    libc = callPackage ../os-specific/darwin/libc {};
-
     osx_sdk = callPackage ../os-specific/darwin/osx-sdk {};
     osx_private_sdk = callPackage ../os-specific/darwin/osx-private-sdk { inherit osx_sdk; };
-
-    ps = callPackage ../os-specific/darwin/adv_cmds/ps.nix {};
-    bootstrap_cmds   = callPackage ../os-specific/darwin/bootstrap-cmds {};
 
     security_tool = callPackage ../os-specific/darwin/security-tool { inherit osx_private_sdk; };
 
@@ -8434,6 +8478,9 @@ let
     apple_sdk = callPackage ../os-specific/darwin/apple-sdk {};
 
     libobjc = apple-source-releases.objc4;
+
+    # TODO: goes away once we get a proper binutils
+    cxxfilt = callPackage ../os-specific/darwin/cxxfilt {};
   };
 
   devicemapper = lvm2;
@@ -8555,8 +8602,6 @@ let
 
   iw = callPackage ../os-specific/linux/iw { };
 
-  iwlwifi = callPackage ../os-specific/linux/firmware/iwlwifi { };
-
   iwlegacy = callPackage ../os-specific/linux/firmware/iwlegacy { };
 
   jfbview = callPackage ../os-specific/linux/jfbview { };
@@ -8630,7 +8675,7 @@ let
 
   linux_3_10 = makeOverridable (import ../os-specific/linux/kernel/linux-3.10.nix) {
     inherit fetchurl stdenv perl buildLinux;
-    kernelPatches = [ kernelPatches.bridge_stp_helper ]
+    kernelPatches = [ kernelPatches.bridge_stp_helper kernelPatches.crc_regression ]
       ++ lib.optionals ((platform.kernelArch or null) == "mips")
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
@@ -8640,7 +8685,7 @@ let
 
   linux_3_12 = makeOverridable (import ../os-specific/linux/kernel/linux-3.12.nix) {
     inherit fetchurl stdenv perl buildLinux;
-    kernelPatches = [ kernelPatches.bridge_stp_helper ]
+    kernelPatches = [ kernelPatches.bridge_stp_helper kernelPatches.crc_regression ]
       ++ lib.optionals ((platform.kernelArch or null) == "mips")
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
@@ -8650,7 +8695,7 @@ let
 
   linux_3_14 = makeOverridable (import ../os-specific/linux/kernel/linux-3.14.nix) {
     inherit fetchurl stdenv perl buildLinux;
-    kernelPatches = [ kernelPatches.bridge_stp_helper ]
+    kernelPatches = [ kernelPatches.bridge_stp_helper kernelPatches.crc_regression ]
       ++ lib.optionals ((platform.kernelArch or null) == "mips")
       [ kernelPatches.mips_fpureg_emu
         kernelPatches.mips_fpu_sigill
@@ -8659,6 +8704,16 @@ let
   };
 
   linux_3_18 = makeOverridable (import ../os-specific/linux/kernel/linux-3.18.nix) {
+    inherit fetchurl stdenv perl buildLinux;
+    kernelPatches = [ kernelPatches.bridge_stp_helper ]
+      ++ lib.optionals ((platform.kernelArch or null) == "mips")
+      [ kernelPatches.mips_fpureg_emu
+        kernelPatches.mips_fpu_sigill
+        kernelPatches.mips_ext3_n32
+      ];
+  };
+
+  linux_3_19 = makeOverridable (import ../os-specific/linux/kernel/linux-3.19.nix) {
     inherit fetchurl stdenv perl buildLinux;
     kernelPatches = [ kernelPatches.bridge_stp_helper ]
       ++ lib.optionals ((platform.kernelArch or null) == "mips")
@@ -8797,6 +8852,8 @@ let
 
     v86d = callPackage ../os-specific/linux/v86d { };
 
+    vhba = callPackage ../misc/emulators/cdemu/vhba.nix { };
+
     virtualbox = callPackage ../applications/virtualization/virtualbox {
       stdenv = stdenv_32bit;
       inherit (gnome) libIDL;
@@ -8821,12 +8878,12 @@ let
   };
 
   # The current default kernel / kernel modules.
-  linux = linuxPackages.kernel;
   linuxPackages = linuxPackages_3_14;
+  linux = linuxPackages.kernel;
 
   # Update this when adding the newest kernel major version!
-  linux_latest = pkgs.linux_3_18;
-  linuxPackages_latest = pkgs.linuxPackages_3_18;
+  linuxPackages_latest = pkgs.linuxPackages_3_19;
+  linux_latest = linuxPackages_latest.kernel;
 
   # Build the kernel modules for the some of the kernels.
   linuxPackages_3_2 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_2 linuxPackages_3_2);
@@ -8837,7 +8894,13 @@ let
   linuxPackages_3_12 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_12 linuxPackages_3_12);
   linuxPackages_3_14 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_14 linuxPackages_3_14);
   linuxPackages_3_18 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_18 linuxPackages_3_18);
+  linuxPackages_3_19 = recurseIntoAttrs (linuxPackagesFor pkgs.linux_3_19 linuxPackages_3_19);
   linuxPackages_testing = recurseIntoAttrs (linuxPackagesFor pkgs.linux_testing linuxPackages_testing);
+  linuxPackages_custom = {version, src, configfile}:
+                           let linuxPackages_self = (linuxPackagesFor (pkgs.linuxManualConfig {inherit version src configfile;
+                                                                                               allowImportFromDerivation=true;})
+                                                     linuxPackages_self);
+                           in recurseIntoAttrs linuxPackages_self;
 
   # grsecurity flavors
   # Stable kernels
@@ -8941,7 +9004,7 @@ let
 
   nss_ldap = callPackage ../os-specific/linux/nss_ldap { };
 
-  pam = callPackage ../os-specific/linux/pam { };
+  pam = if stdenv.isDarwin then openpam else callPackage ../os-specific/linux/pam { };
 
   # pam_bioapi ( see http://www.thinkwiki.org/wiki/How_to_enable_the_fingerprint_reader )
 
@@ -8989,6 +9052,8 @@ let
   powertop = callPackage ../os-specific/linux/powertop { };
 
   prayer = callPackage ../servers/prayer { };
+
+  ps = if stdenv.isDarwin then darwin.adv_cmds else procps;
 
   procps = procps-ng;
 
@@ -9633,6 +9698,10 @@ let
 
   camlistore = callPackage ../applications/misc/camlistore { };
 
+  canto-curses = callPackage ../applications/networking/feedreaders/canto-curses { };
+
+  canto-daemon = callPackage ../applications/networking/feedreaders/canto-daemon { };
+
   carrier = builderDefsPackage (import ../applications/networking/instant-messengers/carrier/2.5.0.nix) {
     inherit fetchurl stdenv pkgconfig perl perlXMLParser libxml2 openssl nss
       gtkspell aspell gettext ncurses avahi dbus dbus_glib python
@@ -10222,7 +10291,6 @@ let
   git = gitAndTools.git;
   gitFull = gitAndTools.gitFull;
   gitMinimal = git.override {
-    withManual = false;
     pythonSupport = false;
   };
   gitSVN = gitAndTools.gitSVN;
@@ -10668,6 +10736,7 @@ let
 
   mercurial = callPackage ../applications/version-management/mercurial {
     inherit (pythonPackages) curses docutils;
+    inherit (darwin.apple_sdk.frameworks) ApplicationServices;
     guiSupport = false; # use mercurialFull to get hgk GUI
   };
 
@@ -11166,7 +11235,7 @@ let
   };
 
   sakura = callPackage ../applications/misc/sakura {
-    inherit (gnome) vte;
+    inherit (gnome3) vte;
   };
 
   sbagen = callPackage ../applications/misc/sbagen { };
@@ -11521,7 +11590,10 @@ let
     flup = pythonPackages.flup;
   };
 
-  vim = callPackage ../applications/editors/vim { };
+  vim = callPackage ../applications/editors/vim {
+    inherit (darwin.apple_sdk.frameworks) CoreServices Cocoa Foundation CoreData;
+    inherit (darwin) libobjc;
+  };
 
   macvim = callPackage ../applications/editors/vim/macvim.nix { stdenv = clangStdenv; };
 
@@ -11632,7 +11704,7 @@ let
     graphicsSupport = false;
   };
 
-  weechat = callPackage ../applications/networking/irc/weechat { };
+  weechat = callPackage ../applications/networking/irc/weechat { inherit (darwin) libobjc; };
 
   westonLite = callPackage ../applications/window-managers/weston {
     pango = null;
@@ -11794,6 +11866,10 @@ let
   xawtv = callPackage ../applications/video/xawtv { };
 
   xbindkeys = callPackage ../tools/X11/xbindkeys { };
+
+  xbindkeys-config = callPackage ../tools/X11/xbindkeys-config/default.nix {
+    gtk = gtk2;
+  };
 
   xbmcPlain = callPackage ../applications/video/xbmc {
     ffmpeg = ffmpeg_1;

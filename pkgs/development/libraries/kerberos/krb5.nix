@@ -1,4 +1,5 @@
-{ stdenv, fetchurl, pkgconfig, perl, ncurses, yacc, openssl, openldap }:
+{ stdenv, fetchurl, pkgconfig, perl, ncurses, yacc, openssl, openldap,
+  bootstrap_cmds }:
 
 let
   pname = "krb5";
@@ -15,7 +16,8 @@ stdenv.mkDerivation (rec {
     sha256 = "10lmbbcrzknzjnhlfjgb4rc3vzncqhmd0kp82pwd0xxpkap7k3yw";
   };
 
-  buildInputs = [ pkgconfig perl ncurses yacc openssl openldap ];
+  buildInputs = [ pkgconfig perl ncurses yacc openssl openldap ] ++
+    stdenv.lib.optional stdenv.isDarwin bootstrap_cmds;
 
   unpackPhase = ''
     tar -xf $src

@@ -1,6 +1,6 @@
 { stdenv, fetchurl, gettext, libidn
 , perl, perlPackages, LWP, python3
-, gnutls ? null }:
+, libiconv, gnutls ? null }:
 
 stdenv.mkDerivation rec {
   name = "wget-1.16";
@@ -10,11 +10,8 @@ stdenv.mkDerivation rec {
     sha256 = "1rxhr3jmgbwryzl51di4avqxw9m9j1z2aak8q1npns0p184xsqcj";
   };
 
-  preConfigure = stdenv.lib.optionalString doCheck
-    '' for i in "doc/texi2pod.pl" "util/rmold.pl"
-       do
-         sed -i "$i" -e 's|/usr/bin.*perl|${perl}/bin/perl|g'
-       done
+  preConfigure =
+    '' patchShebangs .
 
        # Work around lack of DNS resolution in chroots.
        for i in "tests/"*.pm "tests/"*.px
@@ -26,7 +23,7 @@ stdenv.mkDerivation rec {
     '';
 
   nativeBuildInputs = [ gettext ];
-  buildInputs = [ libidn ]
+  buildInputs = [ libidn libiconv ]
     ++ stdenv.lib.optionals doCheck [ perl perlPackages.IOSocketSSL LWP python3 ]
     ++ stdenv.lib.optional (gnutls != null) gnutls
     ++ stdenv.lib.optional stdenv.isDarwin perl;

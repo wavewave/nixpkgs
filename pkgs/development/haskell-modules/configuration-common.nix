@@ -10,6 +10,12 @@ self: super: {
   Cabal_1_22_0_0 = dontCheck super.Cabal_1_22_0_0;
   cabal-install = dontCheck (super.cabal-install.override { Cabal = self.Cabal_1_22_0_0; });
 
+  # These fail in the darwin sandbox.
+  network = dontCheckOn "x86_64-darwin" super.network;
+  system-fileio = dontCheckOn "x86_64-darwin" super.system-fileio;
+  yaml = dontCheckOn "x86_64-darwin" super.yaml;
+  http-reverse-proxy = dontCheckOn "x86_64-darwin" super.http-reverse-proxy;
+
   # Break infinite recursions.
   digest = super.digest.override { inherit (pkgs) zlib; };
   Dust-crypto = dontCheck super.Dust-crypto;
@@ -102,11 +108,17 @@ self: super: {
   network-conduit = dontHaddock super.network-conduit;
   shakespeare-text = dontHaddock super.shakespeare-text;
   uhc-light = dontHaddock super.uhc-light;                      # https://github.com/UU-ComputerScience/uhc/issues/45
+  wai-test = dontHaddock super.wai-test;
 
   # jailbreak doesn't get the job done because the Cabal file uses conditionals a lot.
   darcs = overrideCabal super.darcs (drv: {
     doCheck = false;            # The test suite won't even start.
     patchPhase = "sed -i -e 's|random.*==.*|random|' -e 's|text.*>=.*,|text,|' -e s'|terminfo == .*|terminfo|' darcs.cabal";
+  });
+
+  # disable building double-conversion since it requires libstdc++
+  blaze-textual = overrideCabal (dontCheck super.blaze-textual) (drv: {
+    patchPhase = "sed -i '/double-conversion/d' blaze-textual.cabal";
   });
 
   # The test suite imposes too narrow restrictions on the version of
@@ -123,6 +135,12 @@ self: super: {
   hbro-contrib = dontDistribute super.hbro-contrib;             # hbro
   lss = markBrokenVersion "0.1.0.0" super.lss;                  # https://github.com/dbp/lss/issues/2
   snaplet-lss = markBrokenVersion "0.1.0.0" super.snaplet-lss;  # https://github.com/dbp/lss/issues/2
+
+  fsnotify = super.fsnotify.override {
+    hinotify = if pkgs.stdenv.isDarwin
+      then super.hfsevents
+      else super.hinotify;
+  };
 
   # https://github.com/haskell/vector/issues/47
   vector = if pkgs.stdenv.isi686 then appendConfigureFlag super.vector "--ghc-options=-msse2" else super.vector;
@@ -188,6 +206,7 @@ self: super: {
   HList = dontCheck super.HList;
   memcached-binary = dontCheck super.memcached-binary;
   postgresql-simple = dontCheck super.postgresql-simple;
+  postgrest = dontCheck super.postgrest;
   snowball = dontCheck super.snowball;
   wai-middleware-hmac = dontCheck super.wai-middleware-hmac;
   xmlgen = dontCheck super.xmlgen;
@@ -199,6 +218,7 @@ self: super: {
   dbus = dontCheck super.dbus;                          # http://hydra.cryp.to/build/498404/log/raw
   hadoop-rpc = dontCheck super.hadoop-rpc;              # http://hydra.cryp.to/build/527461/nixlog/2/raw
   hasql = dontCheck super.hasql;                        # http://hydra.cryp.to/build/502489/nixlog/4/raw
+  hjsonschema = overrideCabal super.hjsonschema (drv: { testTarget = "local"; });
   holy-project = dontCheck super.holy-project;          # http://hydra.cryp.to/build/502002/nixlog/1/raw
   http-client = dontCheck super.http-client;            # http://hydra.cryp.to/build/501430/nixlog/1/raw
   http-conduit = dontCheck super.http-conduit;          # http://hydra.cryp.to/build/501966/nixlog/1/raw
@@ -349,6 +369,7 @@ self: super: {
   webdriver = dontCheck super.webdriver;
   xcffib = dontCheck super.xcffib;
   xsd = dontCheck super.xsd;
+  yesod-pagination = dontCheck super.yesod-pagination;
 
   # The build fails with the most recent version of c2hs.
   ncurses = super.ncurses.override { c2hs = self.c2hs_0_20_1; };
@@ -374,9 +395,6 @@ self: super: {
 
   # https://github.com/chrisdone/hindent/issues/83
   hindent = dontCheck super.hindent;
-
-  # https://github.com/begriffs/postgrest/issues/131
-  postgrest = markBrokenVersion "0.2.5.2" super.postgrest;
 
   # Needs older versions of its dependencies.
   structured-haskell-mode = (dontJailbreak super.structured-haskell-mode).override {
@@ -426,10 +444,6 @@ self: super: {
   # https://github.com/pixbi/duplo/issues/25
   duplo = dontCheck super.duplo;
 
-  # https://github.com/seagreen/hjsonschema/issues/4
-  # https://github.com/seagreen/hjsonschema/issues/5
-  hjsonschema = dontHaddock (dontCheck super.hjsonschema);
-
   # Nix-specific workaround
   xmonad = appendPatch super.xmonad ./xmonad-nix.patch;
 
@@ -452,6 +466,23 @@ self: super: {
 
   # Upstream notified by e-mail.
   OpenGLRaw21 = markBrokenVersion "1.2.0.1" super.OpenGLRaw21;
+
+  # Missing module.
+  rematch = dontCheck super.rematch;            # https://github.com/tcrayford/rematch/issues/5
+  rematch-text = dontCheck super.rematch-text;  # https://github.com/tcrayford/rematch/issues/6
+
+  # https://github.com/Twinside/Rasterific/issues/20
+  Rasterific = dontCheck super.Rasterific;
+
+  # Upstream notified by e-mail.
+  MonadCompose = markBrokenVersion "0.2.0.0" super.MonadCompose;
+
+  # Make distributed-process-platform compile until next version
+  distributed-process-platform = overrideCabal super.distributed-process-platform (drv: {
+    patchPhase = "mv Setup.hs Setup.lhs";
+    doCheck = false;
+    doHaddock = false;
+  });
 
 } // {
 
