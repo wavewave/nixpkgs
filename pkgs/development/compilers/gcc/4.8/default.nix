@@ -305,8 +305,8 @@ stdenv.mkDerivation ({
     export CFLAGS_FOR_TARGET="-Wl,-rpath,$prefix/lib/amd64 $CFLAGS_FOR_TARGET"
   '' + stdenv.lib.optionalString stdenv.isDarwin ''
     configureFlagsArray+=(--with-native-system-header-dir=${stdenv.cc.libc}/include )
-    export CFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE -I${framework.CF}/include"
-    export CXXFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE -I${framework.CF}/include"
+    export CFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE"
+    export CXXFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE"
   '';
 
   dontDisableStatic = true;
@@ -465,11 +465,7 @@ stdenv.mkDerivation ({
                                    # On GNU/Hurd glibc refers to Mach & Hurd
                                    # headers.
                                    ++ optionals (libcCross != null && libcCross ? "propagatedBuildInputs" )
-                                        libcCross.propagatedBuildInputs)
-                              )  
-
-
-            );
+                                        libcCross.propagatedBuildInputs)));
 
   LIBRARY_PATH = concatStrings
                    (intersperse ":" (map (x: x + "/lib")
