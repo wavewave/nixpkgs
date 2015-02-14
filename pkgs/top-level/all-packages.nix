@@ -3353,6 +3353,7 @@ let
       then gnu.libpthreadCross
       else null;
     inherit (darwin) cxxfilt;
+    framework = if stdenv.isDarwin then darwin else null; 
   }));
 
   gcc48_multi =

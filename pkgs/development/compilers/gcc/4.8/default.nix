@@ -32,6 +32,7 @@
 , stripped ? true
 , gnused ? null
 , cxxfilt ? null
+, framework ? null
 }:
 
 assert langJava     -> zip != null && unzip != null
@@ -218,7 +219,7 @@ stdenv.mkDerivation ({
   prePatch = if stdenv.isDarwin then
     ''
       substituteInPlace gcc/config/darwin-c.c \
-        --replace "\"/System/Library/Frameworks\"," "" \
+        --replace "\"/System/Library/Frameworks\"," "\"${framework.CF}/Library/Frameworks\"," \
         --replace "\"/Library/Frameworks\"," "" \
     '' else null;
 
@@ -303,9 +304,21 @@ stdenv.mkDerivation ({
     export CXXFLAGS_FOR_TARGET="-Wl,-rpath,$prefix/lib/amd64 $CXXFLAGS_FOR_TARGET"
     export CFLAGS_FOR_TARGET="-Wl,-rpath,$prefix/lib/amd64 $CFLAGS_FOR_TARGET"
   '' + stdenv.lib.optionalString stdenv.isDarwin ''
-    configureFlagsArray+=(--with-native-system-header-dir=${stdenv.cc.libc}/include)
-    export CFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE"
-    export CXXFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE"
+    configureFlagsArray+=(--with-native-system-header-dir=${stdenv.cc.libc}/include )
+    makeFlagsArray +=( \
+       CFLAGS_FOR_BUILD=-F${framework.CF}/Library/Frameworks \
+       CFLAGS_FOR_TARGET=-F${framework.CF}/Library/Frameworks \
+       FLAGS_FOR_TARGET=-F${framework.CF}/Library/Frameworks \
+    )
+    #export EXTRA_FLAGS="-F${framework.CF}/Library/Frameworks"
+    export CFLAGS_FOR_BUILD="-I${framework.CF}/include"
+    export CXXFLAGS_FOR_BUILD="-I${framework.CF}/include"
+    export CFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE -I${framework.CF}/include"
+    export CXXFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE -I${framework.CF}/include"
+    export CFLAGS="-I${framework.CF}/include"
+    export CXXFLAGS="-I${framework.CF}/include"
+    export TARGET_CONFIGARGS="CFLAGS=-F${framework.CF}/Library/Frameworks "
+
   '';
 
   dontDisableStatic = true;
@@ -464,7 +477,12 @@ stdenv.mkDerivation ({
                                    # On GNU/Hurd glibc refers to Mach & Hurd
                                    # headers.
                                    ++ optionals (libcCross != null && libcCross ? "propagatedBuildInputs" )
-                                        libcCross.propagatedBuildInputs)));
+                                        libcCross.propagatedBuildInputs)
+                              ++ optionals (stdenv.isDarwin) [ framework.CF ]
+                              )  
+
+
+            );
 
   LIBRARY_PATH = concatStrings
                    (intersperse ":" (map (x: x + "/lib")
@@ -474,10 +492,12 @@ stdenv.mkDerivation ({
                                           ++ optionals javaAwtGtk [ gmp mpfr ]
                                           ++ optional (libpthread != null) libpthread)));
 
-  EXTRA_TARGET_CFLAGS =
-    if cross != null && libcCross != null
-    then "-idirafter ${libcCross}/include"
-    else null;
+  extraFlags = " -F${framework.CF}/Library/Frameworks";
+#    (if cross != null && libcCross != null
+#     then "-idirafter ${libcCross}/include"
+#     else "")
+#     + optionalString stdenv.isDarwin " -F${framework.CF}/Library/Frameworks"
+#    ;
 
   EXTRA_TARGET_LDFLAGS =
     if cross != null && libcCross != null
