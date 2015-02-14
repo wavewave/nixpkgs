@@ -4,6 +4,9 @@ stdenv.mkDerivation {
   name = "sw_vers";
   buildCommand = ''
     mkdir -p $out/bin
-    ln -s ${binutils_raw}/bin/sw_vers $out/bin/sw_vers
+    cat >$out/bin/sw_vers <<EOF
+      echo "10.9.4"
+    EOF
+    chmod a+x $out/bin/sw_vers
   '';
 }
