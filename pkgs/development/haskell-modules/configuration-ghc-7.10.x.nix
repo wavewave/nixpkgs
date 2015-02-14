@@ -156,7 +156,7 @@ self: super: {
       rev = "25bf93ee8545f34ddd51192b230bbbc94d47039d";
       sha256 = "8aed02abfa77930f98a2ae9f3b55d905e4db6df5c7774e981289ce70e9ee83a7";
     };
-    version = "0.4.0.2";
+    version = "0.3.0.4";
     jailbreak = true;
   });
 
@@ -180,7 +180,7 @@ self: super: {
       sha256 = "609feced378a33dd62158b693876528da5293b86c38be7759002e4e09024cbdd";
     };
     buildDepends = [ primitive ];
-    license = stdenv.lib.licenses.bsd3;
+    license = pkgs.stdenv.lib.licenses.bsd3;
   }) {};
 
   heist = overrideCabal super.heist (drv: {
@@ -218,5 +218,19 @@ self: super: {
   # support a moving target". Go figure.
   barecheck = doJailbreak super.barecheck;
   cartel = overrideCabal super.cartel (drv: { doCheck = false; patchPhase = "sed -i -e 's|base >= .*|base|' cartel.cabal"; });
+
+  # Tests fail on Mac OS 10.9.4
+  system-fileio = dontCheck super.system-fileio;
+
+  # Fails on Mac OS 10.9.4
+  comonad = dontCheck (super.comonad.override {
+    doctest = null;
+  });
+  lens = dontCheck (super.lens.override {
+    doctest = null;
+  });
+  distributive = dontCheck (super.distributive.override {
+    doctest = null;
+  });
 
 }

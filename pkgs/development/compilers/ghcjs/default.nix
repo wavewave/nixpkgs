@@ -69,7 +69,7 @@ in mkDerivation (rec {
     lens optparse-applicative parallel safe shelly split
     stringsearch syb system-fileio system-filepath tar terminfo text-binary
     unordered-containers vector wl-pprint-text yaml
-    alex happy git gnumake gcc autoconf automake libtool patch gmp
+    alex happy git gnumake autoconf automake libtool patch gmp
     base16-bytestring cryptohash executable-path haddock-api
     transformers-compat QuickCheck haddock hspec xhtml
     ghcjs-prim regex-posix

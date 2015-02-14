@@ -360,6 +360,9 @@ self: super: {
   Random123 = dontCheck super.Random123;
   systemd = dontCheck super.systemd;
 
+  # test hangs (at least on Mac OS 10.9.4)
+  haskell-src-exts = dontCheck super.haskell-src-exts;
+
   # https://github.com/eli-frey/cmdtheline/issues/28
   cmdtheline = dontCheck super.cmdtheline;
 

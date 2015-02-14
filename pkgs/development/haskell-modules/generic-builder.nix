@@ -241,7 +241,7 @@ stdenv.mkDerivation ({
 
     ${optionalString (enableSharedExecutables && isExecutable && stdenv.isDarwin) ''
       for exe in "$out/bin/"* ; do
-        install_name_tool -add_rpath "$out/lib/ghc-${ghc.version}/${pname}-${version}" "$exe"
+        install_name_tool -add_rpath "$out/lib/ghc-${ghc.version}/${pname}-${version}" "$exe" || true
       done
     ''}
 
