@@ -305,20 +305,8 @@ stdenv.mkDerivation ({
     export CFLAGS_FOR_TARGET="-Wl,-rpath,$prefix/lib/amd64 $CFLAGS_FOR_TARGET"
   '' + stdenv.lib.optionalString stdenv.isDarwin ''
     configureFlagsArray+=(--with-native-system-header-dir=${stdenv.cc.libc}/include )
-    makeFlagsArray +=( \
-       CFLAGS_FOR_BUILD=-F${framework.CF}/Library/Frameworks \
-       CFLAGS_FOR_TARGET=-F${framework.CF}/Library/Frameworks \
-       FLAGS_FOR_TARGET=-F${framework.CF}/Library/Frameworks \
-    )
-    #export EXTRA_FLAGS="-F${framework.CF}/Library/Frameworks"
-    export CFLAGS_FOR_BUILD="-I${framework.CF}/include"
-    export CXXFLAGS_FOR_BUILD="-I${framework.CF}/include"
     export CFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE -I${framework.CF}/include"
     export CXXFLAGS_FOR_TARGET="$NIX_CFLAGS_COMPILE -I${framework.CF}/include"
-    export CFLAGS="-I${framework.CF}/include"
-    export CXXFLAGS="-I${framework.CF}/include"
-    export TARGET_CONFIGARGS="CFLAGS=-F${framework.CF}/Library/Frameworks "
-
   '';
 
   dontDisableStatic = true;
@@ -478,7 +466,6 @@ stdenv.mkDerivation ({
                                    # headers.
                                    ++ optionals (libcCross != null && libcCross ? "propagatedBuildInputs" )
                                         libcCross.propagatedBuildInputs)
-                              ++ optionals (stdenv.isDarwin) [ framework.CF ]
                               )  
 
 
@@ -492,12 +479,12 @@ stdenv.mkDerivation ({
                                           ++ optionals javaAwtGtk [ gmp mpfr ]
                                           ++ optional (libpthread != null) libpthread)));
 
-  extraFlags = " -F${framework.CF}/Library/Frameworks";
-#    (if cross != null && libcCross != null
-#     then "-idirafter ${libcCross}/include"
-#     else "")
-#     + optionalString stdenv.isDarwin " -F${framework.CF}/Library/Frameworks"
-#    ;
+  extraFlags = 
+    (if cross != null && libcCross != null
+     then "-idirafter ${libcCross}/include"
+     else "")
+     + optionalString stdenv.isDarwin " -F${framework.CF}/Library/Frameworks"
+    ;
 
   EXTRA_TARGET_LDFLAGS =
     if cross != null && libcCross != null
