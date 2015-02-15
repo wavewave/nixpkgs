@@ -11,13 +11,13 @@ stdenv.mkDerivation {
       echo "ProductName:    Mac OS X"
       echo "ProductVersion: 10.9.4"
       echo "BuildVersion:   13E28"
-    elif [ "\$1" = "-ProductName" ];
+    elif [ "\$1" = "-productName" ];
     then
         echo "Mac OS X"
-    elif [ "\$1" = "-ProductVersion" ];
+    elif [ "\$1" = "-productVersion" ];
     then
         echo "10.9.4"
-    elif [ "\$1" = "-BuildVersion" ];
+    elif [ "\$1" = "-buildVersion" ];
     then
         echo "13E28"
     fi
