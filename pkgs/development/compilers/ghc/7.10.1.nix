@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, ghc, perl, gmp, ncurses, fetchgit }:
+{ stdenv, fetchurl, ghc, perl, gmp, ncurses, libiconv, fetchgit }:
 
 let
 
@@ -8,6 +8,10 @@ let
     libraries/terminfo_CONFIGURE_OPTS += --configure-option=--with-curses-includes="${ncurses}/include"
     libraries/terminfo_CONFIGURE_OPTS += --configure-option=--with-curses-libraries="${ncurses}/lib"
     DYNAMIC_BY_DEFAULT = NO
+    ${stdenv.lib.optionalString stdenv.isDarwin ''
+      libraries/base_CONFIGURE_OPTS += --configure-option=--with-iconv-includes="${libiconv}/include"
+      libraries/base_CONFIGURE_OPTS += --configure-option=--with-iconv-libraries="${libiconv}/lib"
+    ''}
   '';
 
   # We've gotta patch up cabal to fix https://github.com/haskell/cabal/issues/2320, but the fix is wrong for ghcjs (it compares against version 7.9, whereas ghcjs is always 0.1.0), so we have to use sed to patch in a False (below)
@@ -28,7 +32,7 @@ stdenv.mkDerivation rec {
     sha256 = "0in5zsr2z545yln55c7mwi07x3za0874yxbpsj5xsb4vn3wrcrbn";
   };
 
-  buildInputs = [ ghc perl ];
+  buildInputs = [ ghc perl libiconv ];
 
   preConfigure = ''
     cp -r ${CabalSrc}/* libraries/Cabal

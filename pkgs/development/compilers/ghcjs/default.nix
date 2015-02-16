@@ -30,11 +30,12 @@
 , parallel, safe, shelly, split, stringsearch, syb
 , tar, terminfo
 , vector, yaml, fetchgit, Cabal
-, alex, happy, git, gnumake, gcc, autoconf, patch
+, alex, happy, git, gnumake, autoconf, patch
 , automake, libtool
 , cryptohash
 , haddock, hspec, xhtml, primitive, cacert, pkgs
 , coreutils
+, cc, libiconv
 }:
 let
   version = "0.1.0";
@@ -72,7 +73,7 @@ in mkDerivation (rec {
     alex happy git gnumake autoconf automake libtool patch gmp
     base16-bytestring cryptohash executable-path haddock-api
     transformers-compat QuickCheck haddock hspec xhtml
-    ghcjs-prim regex-posix
+    ghcjs-prim regex-posix libiconv
   ];
   buildTools = [ nodejs git ];
   testDepends = [
@@ -86,6 +87,7 @@ in mkDerivation (rec {
     for f in ghcjs.cabal utils/patch/ghcjs-patch.cabal test/ghcjs-testsuite.cabal ; do
       sed -i "s/\bshelly.*,/shelly -any,/g" "$f"
     done
+    sed -i 's|\("--with-compiler", ghcjs \^\. pgmLocText\)|\1, "--with-gcc", "${cc}/bin/cc"|' src-bin/Boot.hs
   '';
   preBuild = ''
     local topDir=$out/${libDir}
@@ -98,7 +100,7 @@ in mkDerivation (rec {
     chmod -R u+w $topDir/shims
   '';
   postInstall = ''
-    PATH=$out/bin:$PATH LD_LIBRARY_PATH=${gmp}/lib:${gcc.cc}/lib64:$LD_LIBRARY_PATH \
+    PATH=$out/bin:$PATH LD_LIBRARY_PATH=${gmp}/lib:$LD_LIBRARY_PATH \
       env -u GHC_PACKAGE_PATH $out/bin/ghcjs-boot \
         --dev \
         --with-cabal ${cabal-install}/bin/cabal \
