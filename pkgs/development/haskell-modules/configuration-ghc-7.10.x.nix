@@ -7,6 +7,20 @@ let haddockSrc = pkgs.fetchgit {
       rev = "89fc5605c865d0e0ce5ed7e396102e678426533b";
       sha256 = "c89aba9760af93ebc8e083921c78ceae1069612bba1b0859f8b974178005f5c0";
     };
+
+    fixGtk2hs = subdir: version: pkg: overrideCabal pkg (drv: {
+      sha256 = null;
+      src = "${pkgs.fetchgit {
+        url = git://github.com/gtk2hs/gtk2hs;
+        rev = "49a90b1f586c7fafcc0b92258a6edbd9a1998edc";
+        sha256 = "0af7859db84d00649a23be800c2f2bc378baa22a3c56b141d27420ccc3c3ec62";
+      }}/${subdir}";
+      inherit version;
+    });
+    forceGhcPkg = pkg: overrideCabal pkg (drv: {
+      configureFlags = (drv.configureFlags or []) ++ [ "--ghc-pkg-option=--force" ];
+    });
+
 in
 
 self: super: {
@@ -233,4 +247,21 @@ self: super: {
     doctest = null;
   });
 
+  dependent-map = overrideCabal super.dependent-map (drv: {
+    preConfigure = ''
+      sed -i 's/^.*trust base.*$//' *.cabal
+    '';
+  });
+
+  glib = fixGtk2hs "glib" "0.13.0.8" super.glib;
+  gio = forceGhcPkg (dontCheck (dontHaddock (fixGtk2hs "gio" "0.13.0.5" super.gio)));
+  cairo = fixGtk2hs "cairo" "0.13.0.7" super.cairo;
+  pango = fixGtk2hs "pango" "0.13.0.6" super.pango;
+  gtk3 = forceGhcPkg (fixGtk2hs "gtk" "0.13.5" super.gtk3);
+  webkitgtk3 = forceGhcPkg (overrideCabal super.webkitgtk3 (drv: {
+    patchPhase = ''
+      sed -i 's/^import System.Exit$/import System.Exit hiding (die)/' SetupWrapper.hs
+    '';
+    buildDepends = (drv.buildDepends or []) ++ [ pkgs.webkitgtk24x ];
+  }));
 }
