@@ -49,6 +49,30 @@ self: super: {
   unordered-containers = null;
   vector = null;
 
+  pqueue = overrideCabal super.pqueue (drv: {
+    patchPhase = ''
+      sed -i -e '12s|null|Data.PQueue.Internals.null|' Data/PQueue/Internals.hs
+      sed -i -e '64s|null|Data.PQueue.Internals.null|' Data/PQueue/Internals.hs
+      sed -i -e '32s|null|Data.PQueue.Internals.null|' Data/PQueue/Min.hs
+      sed -i -e '32s|null|Data.PQueue.Max.null|' Data/PQueue/Max.hs
+      sed -i -e '42s|null|Data.PQueue.Prio.Internals.null|' Data/PQueue/Prio/Min.hs
+      sed -i -e '42s|null|Data.PQueue.Prio.Max.null|' Data/PQueue/Prio/Max.hs
+    '';
+  });
+
+  reactive-banana = overrideCabal super.reactive-banana (drv: {
+    patchPhase = ''
+      cat >> src/Reactive/Banana/Switch.hs <<EOF
+      instance Functor (AnyMoment Identity) where
+        fmap = liftM
+        
+      instance Applicative (AnyMoment Identity) where
+        pure = return
+        (<*>) = ap
+      EOF
+    '';
+  });
+
   transformers-compat = overrideCabal super.transformers-compat (drv: {
     configureFlags = [];
   });
