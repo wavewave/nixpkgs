@@ -271,7 +271,8 @@ stdenv.mkDerivation ({
         echo >&2 ""
         echo >&2 "*** Haskell 'env' attributes are intended for interactive nix-shell sessions, not for building! ***"
         echo >&2 ""
-        exit 1
+        echo "$propagatedBuildInputs $buildInputs $nativeBuildInputs $propagatedNativeBuildInputs" > $out
+#        exit 1 # We want to allow the env to be built so it can be sent to a remote server for caching
       '';
     };
 
