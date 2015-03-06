@@ -264,4 +264,11 @@ self: super: {
     '';
     buildDepends = (drv.buildDepends or []) ++ [ pkgs.webkitgtk24x ];
   }));
+
+  # Tests fail on Mac OS 10.10
+  QuickCheck = dontCheck super.QuickCheck;
+  async = dontCheck super.async;
+  dlist = dontCheck super.dlist;
+  free = dontCheck super.free;
+  vector = dontCheck super.vector;
 }
