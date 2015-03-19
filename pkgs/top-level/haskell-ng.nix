@@ -97,7 +97,9 @@ rec {
     };
     ghcjs = callPackage ../development/haskell-modules {
       ghc = compiler.ghcjs;
-      packageSetConfig = callPackage ../development/haskell-modules/configuration-ghcjs.nix { };
+      packageSetConfig = callPackage ../development/haskell-modules/configuration-ghcjs.nix {
+        parent = packages.ghc7101;
+      };
       jailbreak-cabal = "${packages.ghc7101.jailbreak-cabal}";
       hsc2hs = "${compiler.ghc7101}/bin/hsc2hs";
     };

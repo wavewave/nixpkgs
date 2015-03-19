@@ -1,4 +1,4 @@
-{ pkgs }:
+{ pkgs, parent }:
 
 with import ./lib.nix { inherit pkgs; };
 let stdenv = pkgs.stdenv;
@@ -48,6 +48,9 @@ self: super: {
   unix = null;
   unordered-containers = null;
   vector = null;
+
+  # happy is an executable only, and it will be used in the host, so we want the native binary
+  happy = parent.happy;
 
   pqueue = overrideCabal super.pqueue (drv: {
     patchPhase = ''
@@ -106,4 +109,15 @@ self: super: {
        license = stdenv.lib.licenses.mit;
        hydraPlatforms = stdenv.lib.platforms.none;
      }) {};
+
+  haskell-src-meta = overrideCabal super.haskell-src-meta (drv: {
+    sha256 = null;
+    src = pkgs.fetchgit {
+      url = git://github.com/bmillwood/haskell-src-meta;
+      rev = "1d048974bd3027576e6217a390bd87448cd817b2";
+      sha256 = "21cea526f04083b706bd738ccf92618711660818971622b5aa277407dcdec9f5";
+    };
+    version = "0.6.0.8";
+    jailbreak = true;
+  });
 }
