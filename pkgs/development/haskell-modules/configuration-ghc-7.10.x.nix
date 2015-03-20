@@ -271,4 +271,10 @@ self: super: {
   dlist = dontCheck super.dlist;
   free = dontCheck super.free;
   vector = dontCheck super.vector;
+
+  # Tests fail due to new time library
+  twitter-types = dontCheck super.twitter-types;
+
+  # Tests take way too long
+  RSA = dontCheck super.RSA;
 }
