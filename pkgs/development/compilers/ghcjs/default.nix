@@ -48,16 +48,16 @@ let
   };
   shims = fetchgit {
     url = git://github.com/ghcjs/shims.git;
-    rev = "99bbd4bed584ec42bfcc5ea61c3808a2c670053d";
-    sha256 = "1my3gqkln7hgm0bpy32pnhwjfza096alh0n9x9ny8xfpxhmzz4h6";
+    rev = "6ada4bf1a084d1b80b993303d35ed863d219b031";
+    sha256 = "6c93ebd4c4178257db93d4469d9bd38f7572bd60d2ae1baa58abf53ca4b40e36";
   };
 in mkDerivation (rec {
   pname = "ghcjs";
   inherit version;
   src = fetchgit {
     url = git://github.com/ghcjs/ghcjs.git;
-    rev = "4392fa69d66036d2c5d4905da4eac78b2fa97b74";
-    sha256 = "319251a3fd7cddf9c52f16fc9b199ded7713e35d2241a8f60df46d29cc238cf3";
+    rev = "44df08ad870a13f89c89f688ba2718347b63374c";
+    sha256 = "bce80501a295de840c90b43eb5b2157ebfabd1276721053dc526521fc60cb6f3";
   };
   isLibrary = true;
   isExecutable = true;
