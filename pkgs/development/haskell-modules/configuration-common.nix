@@ -339,6 +339,9 @@ self: super: {
   persistent-redis = dontCheck super.persistent-redis;
   pipes-extra = dontCheck super.pipes-extra;
   pipes-websockets = dontCheck super.pipes-websockets;
+  poppler = super.poppler.override {
+    popplerGlib = pkgs.poppler;
+  };
   postgresql-binary = dontCheck super.postgresql-binary;# needs a running postgresql server
   postgresql-simple-migration = dontCheck super.postgresql-simple-migration;
   process-streaming = dontCheck super.process-streaming;
