@@ -8,7 +8,7 @@ rec {
       mkdir -pv $out/lib/gradle/
       cp -rv lib/ $out/lib/gradle/
 
-      gradle_launcher_jar=$(echo $out/gradle/lib/gradle-launcher-*.jar)
+      gradle_launcher_jar=$(echo $out/lib/gradle/lib/gradle-launcher-*.jar)
       test -f $gradle_launcher_jar
       makeWrapper ${jdk}/bin/java $out/bin/gradle \
         --set JAVA_HOME ${jdk} \
@@ -40,6 +40,15 @@ rec {
     src = fetchurl {
       url = "http://services.gradle.org/distributions/${name}-bin.zip";
       sha256 = "1jq3m6ihvcxyp37mwsg3i8li9hd6rpv8ri8ih2mgvph4y71bk3d8";
+    };
+  };
+
+  gradle26 = gradleGen rec {
+    name = "gradle-2.6";
+
+    src = fetchurl {
+      url = "http://services.gradle.org/distributions/${name}-bin.zip";
+      sha256 = "10ww9vqyi5jkdw5bna14y63fjfhh40n81q7qsfhdycgj19b8ra8q";
     };
   };
 

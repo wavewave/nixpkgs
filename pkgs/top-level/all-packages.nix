@@ -5671,6 +5671,7 @@ let
   gradleGen = callPackage ../development/tools/build-managers/gradle { };
   gradle = self.gradleGen.gradle28;
   gradle25 = self.gradleGen.gradle25;
+  gradle26 = self.gradleGen.gradle26;
 
   gperf = callPackage ../development/tools/misc/gperf { };
 
