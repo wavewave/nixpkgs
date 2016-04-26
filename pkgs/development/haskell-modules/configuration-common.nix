@@ -88,7 +88,8 @@ self: super: {
     ];
     preConfigure = ''
       unset CC          # unconfuse the haskell-cuda configure script
-      sed -i -e 's|/usr/local/cuda|${pkgs.cudatoolkit}|g' configure
+      export CUDA_PATH="${pkgs.cudatoolkit}"
+      #sed -i -e 's|/usr/local/cuda|${pkgs.cudatoolkit}|g' configure
     '';
   });
 
