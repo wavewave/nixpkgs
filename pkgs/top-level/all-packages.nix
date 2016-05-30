@@ -14703,6 +14703,7 @@ let
 
   caffe = callPackage ../applications/science/math/caffe {
     cudaSupport = config.caffe.cudaSupport or config.cudaSupport or true;
+    cudnnSupport = true; # config.caffe.cudnnSupport or config.cudnnSupport or false;
   };
 
   ecm = callPackage ../applications/science/math/ecm { };

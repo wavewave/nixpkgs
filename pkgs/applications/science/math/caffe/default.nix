@@ -14,6 +14,7 @@
 , opencv
 , protobuf
 , snappy
+, cmake
 }:
 
 
@@ -31,6 +32,9 @@ in stdenv.mkDerivation rec {
 
   preConfigure = "mv Makefile.config.example Makefile.config";
 
+  cmakeFlags = "-DBLAS=Open -DUSE_CUDNN=1 -DCUDNN_ROOT=${cudnn}";
+
+
   makeFlags = "BLAS=open " +
               (if !cudaSupport then "CPU_ONLY=1 " else "CUDA_DIR=${cudatoolkit7} ") +
               (if cudnnSupport then "USE_CUDNN=1 " else "");
@@ -40,7 +44,7 @@ in stdenv.mkDerivation rec {
   checkPhase = "make runtest ${makeFlags}";
 
   buildInputs = [ openblas boost google-gflags glog hdf5 leveldb lmdb opencv
-                  protobuf snappy ]
+                  protobuf snappy cmake ]
                 ++ optional cudaSupport cudatoolkit7
                 ++ optional cudnnSupport cudnn;
 
