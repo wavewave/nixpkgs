@@ -1,4 +1,8 @@
-{ stdenv, fetchurl, python, buildPythonPackage, six, scipy }:
+{ stdenv, fetchurl, python, buildPythonPackage, six, scipy
+, cudnnSupport ? false
+, cudnn ? null
+, cudatoolkit
+}:
 
 buildPythonPackage rec {
   name = "theano-0.8.2";
@@ -8,9 +12,11 @@ buildPythonPackage rec {
     sha256 = "0c49mz3bg57vigkyfz3yd6302587hsikhvgkh7w7ny0sxpvwhqvl";
   };
   
-  buildInputs = [ python stdenv six scipy ];
+  buildInputs = [ python stdenv six scipy ]
+                ++ (if cudnnSupport then [ cudatoolkit cudnn ] else []);
 
-  propagatedBuildInputs = [ ];
+  propagatedBuildInputs = [ six scipy ]
+                          ++ (if cudnnSupport then [ cudatoolkit cudnn ] else []);
 
   meta = with stdenv.lib; {
     description = "Optimizing compiler for evaluating mathematical expressions on CPUs and GPUs";
