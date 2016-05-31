@@ -182,6 +182,8 @@ let
     hdf5 = pkgs.hdf5.override { zlib = pkgs.zlib; };
   };
 
+  theano = callPackage ../development/python-modules/theano { };
+
   # packages defined here
 
   aafigure = buildPythonPackage rec {
