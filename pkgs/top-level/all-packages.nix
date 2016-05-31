@@ -14701,10 +14701,16 @@ let
 
   ### SCIENCE / MATH
 
-  caffe = callPackage ../applications/science/math/caffe {
+  caffe = callPackage ../applications/science/math/caffe rec {
     cudaSupport = config.caffe.cudaSupport or config.cudaSupport or true;
-    cudnnSupport = true; # config.caffe.cudnnSupport or config.cudnnSupport or false;
+    cudnnSupport = config.caffe.cudnnSupport or config.cudnnSupport or false;
+    cudnn = if cudnnSupport then cudnn2 else null; 
   };
+
+  cudnn2 = callPackage ../development/libraries/science/math/cudnn/2.nix {};
+  cudnn4 = callPackage ../development/libraries/science/math/cudnn/4.nix {};
+
+  cudnn = cudnn4;
 
   ecm = callPackage ../applications/science/math/ecm { };
 

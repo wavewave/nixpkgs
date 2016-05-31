@@ -15,6 +15,7 @@
 , protobuf
 , snappy
 , cmake
+, bc
 }:
 
 
@@ -30,33 +31,35 @@ in stdenv.mkDerivation rec {
     sha256 = "0vd4qrc49dhsawj298xpkd5mvi35sh56kdswx3yp8ya4fjajwakx";
   };
 
-  preConfigure = "mv Makefile.config.example Makefile.config";
+  #preConfigure = "mv Makefile.config.example Makefile.config";
 
-  cmakeFlags = "-DBLAS=Open -DUSE_CUDNN=1 -DCUDNN_ROOT=${cudnn}";
+  cmakeFlags = "-DBLAS=Open "
+               + (if !cudaSupport then "-DCPU_ONLY=1 " else "-DCUDA_DIR=${cudatoolkit7} ")   
+               + (if cudnnSupport then "-DUSE_CUDNN=1 -DCUDNN_ROOT=${cudnn} " else "");
 
-
-  makeFlags = "BLAS=open " +
-              (if !cudaSupport then "CPU_ONLY=1 " else "CUDA_DIR=${cudatoolkit7} ") +
-              (if cudnnSupport then "USE_CUDNN=1 " else "");
+  #makeFlags = "BLAS=open " +
+  #            (if !cudaSupport then "CPU_ONLY=1 " else "CUDA_DIR=${cudatoolkit7} ") +
+  #            (if cudnnSupport then "USE_CUDNN=1 " else "");
 
   # too many issues with tests to run them for now
   doCheck = false;
-  checkPhase = "make runtest ${makeFlags}";
+  #checkPhase = "make runtest ${makeFlags}";
+  enableParallelBuilding=true;
 
   buildInputs = [ openblas boost google-gflags glog hdf5 leveldb lmdb opencv
-                  protobuf snappy cmake ]
+                  protobuf snappy cmake bc ]
                 ++ optional cudaSupport cudatoolkit7
                 ++ optional cudnnSupport cudnn;
 
   installPhase = ''
     mkdir -p $out/{bin,share,lib}
-    for bin in $(find build/tools -executable -type f -name '*.bin');
+    for bin in $(find tools -executable -type f);
     do
-      cp $bin $out/bin/$(basename $bin .bin)
+      cp $bin $out/bin
     done
 
-    cp -r build/examples $out/share
-    cp -r build/lib $out
+    cp -r examples $out/share
+    cp -r lib $out
   '';
 
   meta = with stdenv.lib; {

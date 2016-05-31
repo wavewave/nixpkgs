@@ -1,4 +1,4 @@
-{ stdenv, requireFile, cudatoolkit }:
+{ stdenv, requireFile, cudatoolkit7 }:
 
 stdenv.mkDerivation rec {
   version = "4.0";
@@ -18,7 +18,7 @@ stdenv.mkDerivation rec {
 
   phases = "unpackPhase installPhase fixupPhase";
 
-  propagatedBuildInputs = [ cudatoolkit ];
+  propagatedBuildInputs = [ cudatoolkit7 ];
 
   installPhase = ''
     mkdir -p $out
