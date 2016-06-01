@@ -13087,6 +13087,12 @@ let
     enableTelepathy = config.tomahawk.enableTelepathy or false;
   };
 
+  torchPackages = recurseIntoAttrs ( callPackage ../applications/science/machine-learning/torch {
+    lua = luajit ;
+  } );
+
+  torch-repl = lib.setName "torch-repl" torchPackages.trepl;
+
   torchat = callPackage ../applications/networking/instant-messengers/torchat {
     wrapPython = pythonPackages.wrapPython;
   };
@@ -14701,9 +14707,16 @@ let
 
   ### SCIENCE / MATH
 
-  caffe = callPackage ../applications/science/math/caffe {
+  caffe = callPackage ../applications/science/math/caffe rec {
     cudaSupport = config.caffe.cudaSupport or config.cudaSupport or true;
+    cudnnSupport = config.caffe.cudnnSupport or config.cudnnSupport or false;
+    cudnn = if cudnnSupport then cudnn2 else null; 
   };
+
+  cudnn2 = callPackage ../development/libraries/science/math/cudnn/2.nix {};
+  cudnn4 = callPackage ../development/libraries/science/math/cudnn/4.nix {};
+
+  cudnn = cudnn4;
 
   ecm = callPackage ../applications/science/math/ecm { };
 

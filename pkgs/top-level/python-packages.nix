@@ -182,6 +182,11 @@ let
     hdf5 = pkgs.hdf5.override { zlib = pkgs.zlib; };
   };
 
+  theano = with pkgs; callPackage ../development/python-modules/theano rec {
+    cudnnSupport = config.theano.cudnnSupport or config.cudnnSupport or false;
+    cudnn = if cudnnSupport then pkgs.cudnn else null;
+  };
+
   # packages defined here
 
   aafigure = buildPythonPackage rec {
