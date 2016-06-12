@@ -7,10 +7,12 @@ stdenv.mkDerivation rec {
   version = "1.3.1";
 
   src = fetchFromGitHub {
-    owner = "anholt";
+    #owner = "anholt";
+    owner = "yaronct";
     repo = "libepoxy";
-    rev = "v${version}";
-    sha256 = "0dfkd4xbp7v5gwsf6qwaraz54yzizf3lj5ymyc0msjn0adq3j5yl";
+    #rev = "v${version}";
+    rev = "c342cba2a1b882f30b1864b5819bdb8986f5ee9c";
+    sha256 = "b668d2120e33594d79280caf782251cd5f89a47e1b6c0c6ed60486abe90cf8b8";
   };
 
   outputs = [ "dev" "out" ];
