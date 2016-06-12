@@ -8,6 +8,7 @@
 , libXpm ? null
 , fontconfig
 , freetype
+, cmake
 }:
 
 stdenv.mkDerivation rec {
@@ -19,13 +20,13 @@ stdenv.mkDerivation rec {
     sha256 = "0xmrqka1ggqgml84xbmkw1y0r0lg7qn657v5b1my8pry92p651vh";
   };
 
-  nativeBuildInputs = [ pkgconfig ];
+  nativeBuildInputs = [ pkgconfig cmake ];
   buildInputs = [ zlib fontconfig freetype ];
   propagatedBuildInputs = [ libpng libjpeg libwebp libtiff libXpm ];
 
-  outputs = [ "dev" "out" "bin" ];
+  #outputs = [ "dev" "out" "bin" ];
 
-  postFixup = ''moveToOutput "bin/gdlib-config" $dev'';
+  #postFixup = ''moveToOutput "bin/gdlib-config" $dev'';
 
   enableParallelBuilding = true;
 
