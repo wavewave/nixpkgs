@@ -11,8 +11,9 @@ stdenv.mkDerivation rec {
 
   configureflags= "--with-introspection";
 
-  propagatedBuildInputs = [ glib gobjectIntrospection libintlOrEmpty ];
+  propagatedBuildInputs = [ glib gobjectIntrospection ];
   nativeBuildInputs = [ pkgconfig ];
+  buildInputs = [ libintlOrEmpty ];
 
   meta = with stdenv.lib; {
     homepage = http://live.gnome.org/JsonGlib;
