@@ -24,6 +24,8 @@ stdenv.mkDerivation rec {
   buildInputs = [ zlib fontconfig freetype ];
   propagatedBuildInputs = [ libpng libjpeg libwebp libtiff libXpm ];
 
+  cmakeFlags = [ "-DENABLE_JPEG=True" "-DENABLE_PNG=True" ];
+
   #outputs = [ "dev" "out" "bin" ];
 
   #postFixup = ''moveToOutput "bin/gdlib-config" $dev'';
