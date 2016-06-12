@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, glib, pkgconfig, gobjectIntrospection, dbus, libintlOrEmpty }:
+{ stdenv, fetchurl, glib, pkgconfig, gobjectIntrospection, dbus, gettext }:
 
 stdenv.mkDerivation rec {
   name = "json-glib-${minVer}.0";
@@ -12,8 +12,9 @@ stdenv.mkDerivation rec {
   configureflags= "--with-introspection";
 
   propagatedBuildInputs = [ glib gobjectIntrospection ];
-  nativeBuildInputs = [ pkgconfig ];
-  buildInputs = [ libintlOrEmpty ];
+  nativeBuildInputs = [ pkgconfig gettext ];
+
+  NIX_LDFLAGS = stdenv.lib.optionalString stdenv.isDarwin "-lintl";
 
   meta = with stdenv.lib; {
     homepage = http://live.gnome.org/JsonGlib;
