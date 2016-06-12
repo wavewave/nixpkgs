@@ -10,8 +10,8 @@ stdenv.mkDerivation rec {
   src = fetchFromGitHub {
     repo = "libepoxy";
     owner = "wavewave";
-    rev = "c342cba2a1b882f30b1864b5819bdb8986f5ee9c";
-    sha256 = "1v5dlzycx6bj47b7nyqz3xx8cvz1hvx2iflbx9mrfifd1w396mb4";
+    rev = "fc188b06dc350d7adbec07b1bdf51759e4d6f3b8";
+    sha256 = "1kyj6p05638miyy5mf0czgvfdavgp7yn39armbigw57s75m9yczw";
   
     #owner = "anholt";
     #rev = "v${version}";
