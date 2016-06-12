@@ -1,4 +1,4 @@
-{ stdenv, fetchurl, glib, pkgconfig, gobjectIntrospection, dbus }:
+{ stdenv, fetchurl, glib, pkgconfig, gobjectIntrospection, dbus, libintlOrEmpty }:
 
 stdenv.mkDerivation rec {
   name = "json-glib-${minVer}.0";
@@ -11,7 +11,7 @@ stdenv.mkDerivation rec {
 
   configureflags= "--with-introspection";
 
-  propagatedBuildInputs = [ glib gobjectIntrospection ];
+  propagatedBuildInputs = [ glib gobjectIntrospection libintlOrEmpty ];
   nativeBuildInputs = [ pkgconfig ];
 
   meta = with stdenv.lib; {
