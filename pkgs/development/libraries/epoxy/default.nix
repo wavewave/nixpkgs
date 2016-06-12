@@ -1,5 +1,6 @@
-{ stdenv, fetchFromGitHub, autoreconfHook, pkgconfig, utilmacros, python
-, mesa, libX11
+{ stdenv, fetchFromGitHub # , autoreconfHook
+, pkgconfig, utilmacros, python
+, mesa, libX11, cmake
 }:
 
 stdenv.mkDerivation rec {
@@ -7,23 +8,37 @@ stdenv.mkDerivation rec {
   version = "1.3.1";
 
   src = fetchFromGitHub {
-    #owner = "anholt";
-    owner = "yaronct";
     repo = "libepoxy";
-    #rev = "v${version}";
+    owner = "wavewave";
     rev = "c342cba2a1b882f30b1864b5819bdb8986f5ee9c";
-    sha256 = "b668d2120e33594d79280caf782251cd5f89a47e1b6c0c6ed60486abe90cf8b8";
+    sha256 = "1v5dlzycx6bj47b7nyqz3xx8cvz1hvx2iflbx9mrfifd1w396mb4";
+  
+    #owner = "anholt";
+    #rev = "v${version}";
+    #sha256 = "0dfkd4xbp7v5gwsf6qwaraz54yzizf3lj5ymyc0msjn0adq3j5yl";
+
+    #owner = "yaronct";    
+    #rev = "c342cba2a1b882f30b1864b5819bdb8986f5ee9c";
+    #sha256 = "1v5dlzycx6bj47b7nyqz3xx8cvz1hvx2iflbx9mrfifd1w396mb4";
+    
   };
 
   outputs = [ "dev" "out" ];
 
-  nativeBuildInputs = [ autoreconfHook pkgconfig utilmacros python ];
+  nativeBuildInputs = [ cmake pkgconfig utilmacros python ]; #autoreconfHook
   buildInputs = [ mesa libX11 ];
 
-  preConfigure = stdenv.lib.optional stdenv.isDarwin ''
-    substituteInPlace configure --replace build_glx=no build_glx=yes
-    substituteInPlace src/dispatch_common.h --replace "PLATFORM_HAS_GLX 0" "PLATFORM_HAS_GLX 1"
-  '';
+  cmakeConfigureFlags = [ "-DEPOXY_SUPPORT_EGL=False" "-DEPOXY_SUPPORT_GLX=True" "-DEPOXY_SUPPORT_WGL=False" ]; 
+  #preConfigure = stdenv.lib.optional stdenv.isDarwin ''
+  #  substituteInPlace configure --replace build_glx=no build_glx=yes
+  #  substituteInPlace include/epoxy/config.h --replace "EPOXY_SUPPORT_EGL 1" "EPOXY_SUPPORT_EGL 0"
+  #  substituteInPlace include/epoxy/config.h --replace "EPOXY_SUPPORT_GLX 0" "EPOXY_SUPPORT_GLX 1"
+  #'';
+    #substituteInPlace src/dispatch_common.h --replace "PLATFORM_HAS_GLX 0" "PLATFORM_HAS_GLX 1"
+  
+    #substituteInPlace configure --replace build_egl=no build_egl=yes    
+
+  #CFLAGS="-UEPOXY_SUPPORT_WGL -UEPOXY_SUPPORT_EGL -DEPOXY_SUPPORT_GLX";
 
   meta = with stdenv.lib; {
     description = "A library for handling OpenGL function pointer management";
