@@ -3,6 +3,7 @@
 , python, freetype, zlib, glib, libungif, libpng, libjpeg, libtiff, libxml2, pango
 , withGTK ? false, gtk2
 , withPython ? true
+, Cocoa
 }:
 
 stdenv.mkDerivation rec {
@@ -30,7 +31,9 @@ stdenv.mkDerivation rec {
     python freetype zlib glib libungif libpng libjpeg libtiff libxml2
     pango
   ]
-    ++ lib.optionals withGTK [ gtk2 ];
+    ++ lib.optionals withGTK [ gtk2 ]
+    ++ lib.optional stdenv.isDarwin Cocoa
+    ;
 
   configureFlags =
     lib.optionals (!withPython) [ "--disable-python-scripting" "--disable-python-extension" ]
