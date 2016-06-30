@@ -25,25 +25,42 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [
     pkgconfig
     libiconv
-  ] ++ libintlOrEmpty ++ optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
-    CoreGraphics
-    ApplicationServices
-    Carbon
-  ]);
+  ] ++ libintlOrEmpty
+  #++ optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+  #  CoreGraphics
+  #  ApplicationServices
+  #  Carbon
+  #])
+  ;
 
   propagatedBuildInputs =
-    with xorg; [ libXext fontconfig expat freetype pixman zlib libpng libXrender ]
+    with xorg; [ libXext
+                 fontconfig
+		 expat
+		 freetype
+		 pixman zlib libpng libXrender ]
     ++ optionals xcbSupport [ libxcb xcbutil ]
     ++ optional gobjectSupport glib
     ++ optional glSupport mesa_noglu
+    ++ optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+    darwin.CF
+    CoreGraphics
+    ApplicationServices
+    CoreText
+    Carbon
+    ])
     ; # TODO: maybe liblzo but what would it be for here?
 
   configureFlags = if stdenv.isDarwin then [
     "--disable-dependency-tracking"
+    #"--disable-fc"
     "--enable-quartz"
+    #"--disable-quartz"
     "--enable-quartz-font"
+    #"--disable-quartz-font"
     "--enable-quartz-image"
     "--enable-ft"
+    #"--disable-ft"
   ] else ([ "--enable-tee" ]
     ++ optional xcbSupport "--enable-xcb"
     ++ optional glSupport "--enable-gl"

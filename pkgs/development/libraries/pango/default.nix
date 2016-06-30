@@ -1,5 +1,6 @@
 { stdenv, fetchurl, pkgconfig, libXft, cairo, harfbuzz
 , libintlOrEmpty, gobjectIntrospection
+, darwin, libtool
 }:
 
 with stdenv.lib;
@@ -18,10 +19,26 @@ stdenv.mkDerivation rec {
 
   outputs = [ "dev" "out" "bin" "docdev" ];
 
-  buildInputs = [ gobjectIntrospection ];
-  nativeBuildInputs = [ pkgconfig ];
-  propagatedBuildInputs = [ cairo harfbuzz libXft ] ++ libintlOrEmpty;
+  buildInputs = [ gobjectIntrospection libtool ];
+  nativeBuildInputs = [ pkgconfig ]
+  #++(optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+   # CoreGraphics
+   # CoreText
+   # ApplicationServices
+    #Carbon
+    #darwin.cf-private
+  #]))
 
+  ;
+  propagatedBuildInputs = [ cairo harfbuzz libXft ] ++ libintlOrEmpty
+  #++ (optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+   # CoreGraphics
+   # CoreText
+   # ApplicationServices
+   # Carbon
+   # darwin.cf-private
+  #]))
+;
   enableParallelBuilding = true;
 
   doCheck = false; # test-layout fails on 1.38.0
@@ -31,7 +48,7 @@ stdenv.mkDerivation rec {
   # .../bin/sh: line 5: 14823 Abort trap: 6 srcdir=. PANGO_RC_FILE=./pangorc ${dir}$tst
   # FAIL: testiter
 
-  configureFlags = optional stdenv.isDarwin "--without-x";
+  configureFlags = optional stdenv.isDarwin ["--without-xft" "--disable-dependency-tracking" ] ;
 
   meta = with stdenv.lib; {
     description = "A library for laying out and rendering of text, with an emphasis on internationalization";

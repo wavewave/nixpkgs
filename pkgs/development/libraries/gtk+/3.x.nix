@@ -51,8 +51,11 @@ stdenv.mkDerivation rec {
     "--disable-debug"
     "--disable-dependency-tracking"
     "--disable-glibtest"
-    "--with-gdktarget=quartz"
+    "--enable-introspection=yes"
+    "--disable-schemas-compile"
+    #"--with-gdktarget=quartz"
     "--enable-quartz-backend"
+    "--disable-x11-backend"
   ];
 
   postInstall = ''
