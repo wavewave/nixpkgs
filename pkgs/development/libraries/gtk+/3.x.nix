@@ -55,6 +55,7 @@ stdenv.mkDerivation rec {
     "--disable-schemas-compile"
     #"--with-gdktarget=quartz"
     "--enable-quartz-backend"
+    "--enable-quartz-relocation"
     "--disable-x11-backend"
   ];
 

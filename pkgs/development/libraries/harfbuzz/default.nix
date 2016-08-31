@@ -23,6 +23,7 @@ stdenv.mkDerivation {
   configureFlags = [
     ( "--with-graphite2=" + (if withGraphite2 then "yes" else "no") ) # not auto-detected by default
     ( "--with-icu=" +       (if withIcu       then "yes" else "no") )
+    "--with-coretext=yes"
   ];
 
   nativeBuildInputs = [ pkgconfig ];

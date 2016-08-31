@@ -1,5 +1,5 @@
 { stdenv, fetchurl, pkgconfig, libXft, cairo, harfbuzz
-, libintlOrEmpty, gobjectIntrospection
+, libintlOrEmpty, gobjectIntrospection, glib
 , darwin, libtool
 }:
 
@@ -19,19 +19,22 @@ stdenv.mkDerivation rec {
 
   outputs = [ "dev" "out" "bin" "docdev" ];
 
-  buildInputs = [ gobjectIntrospection libtool ];
+  buildInputs = [ gobjectIntrospection glib libtool ];
   nativeBuildInputs = [ pkgconfig ]
-  #++(optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+  #++
+  #(optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
    # CoreGraphics
-   # CoreText
+   #CoreText
    # ApplicationServices
     #Carbon
     #darwin.cf-private
   #]))
 
   ;
-  propagatedBuildInputs = [ cairo harfbuzz libXft ] ++ libintlOrEmpty
-  #++ (optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+  propagatedBuildInputs = [ cairo harfbuzz ] ++ libintlOrEmpty
+
+  # libXft ] ++ libintlOrEmpty
+  # ++ (optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
    # CoreGraphics
    # CoreText
    # ApplicationServices
@@ -48,7 +51,13 @@ stdenv.mkDerivation rec {
   # .../bin/sh: line 5: 14823 Abort trap: 6 srcdir=. PANGO_RC_FILE=./pangorc ${dir}$tst
   # FAIL: testiter
 
-  configureFlags = optional stdenv.isDarwin ["--without-xft" "--disable-dependency-tracking" ] ;
+  configureFlags = optional stdenv.isDarwin [
+    "--without-xft"
+    "--disable-dependency-tracking"
+    "--disable-silent-rules"
+    "--enable-introspection=yes"
+    "--enable-static"
+  ] ;
 
   meta = with stdenv.lib; {
     description = "A library for laying out and rendering of text, with an emphasis on internationalization";

@@ -26,11 +26,6 @@ stdenv.mkDerivation rec {
     pkgconfig
     libiconv
   ] ++ libintlOrEmpty
-  #++ optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
-  #  CoreGraphics
-  #  ApplicationServices
-  #  Carbon
-  #])
   ;
 
   propagatedBuildInputs =
@@ -43,24 +38,24 @@ stdenv.mkDerivation rec {
     ++ optional gobjectSupport glib
     ++ optional glSupport mesa_noglu
     ++ optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
-    darwin.CF
-    CoreGraphics
-    ApplicationServices
-    CoreText
-    Carbon
+      darwin.CF
+      CoreGraphics
+      ApplicationServices
+      CoreText
+      Carbon
     ])
     ; # TODO: maybe liblzo but what would it be for here?
 
   configureFlags = if stdenv.isDarwin then [
     "--disable-dependency-tracking"
-    #"--disable-fc"
     "--enable-quartz"
-    #"--disable-quartz"
     "--enable-quartz-font"
-    #"--disable-quartz-font"
     "--enable-quartz-image"
-    "--enable-ft"
-    #"--disable-ft"
+    "--enable-tee"
+    "--enable-svg"
+    "--enable-gobject"
+    #"--enable-ft"
+    #"--enable-fc"
   ] else ([ "--enable-tee" ]
     ++ optional xcbSupport "--enable-xcb"
     ++ optional glSupport "--enable-gl"
@@ -110,3 +105,18 @@ stdenv.mkDerivation rec {
     platforms = platforms.all;
   };
 }
+
+
+  #++ optionals stdenv.isDarwin (with darwin.apple_sdk.frameworks; [
+  #  CoreGraphics
+  #  ApplicationServices
+  #  Carbon
+  #])
+
+    #"--disable-quartz"
+    #"--disable-quartz-font"
+
+    #"--disable-fc"
+
+#"--enable-ft"
+    #"--disable-ft"
