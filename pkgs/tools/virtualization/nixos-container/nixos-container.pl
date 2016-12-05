@@ -22,7 +22,7 @@ $ENV{"NIXOS_CONFIG"} = "";
 sub showHelp {
     print <<EOF;
 Usage: nixos-container list
-       nixos-container create <container-name> [--nixos-path <path>] [--system-path <path>] [--config-file <path>] [--config <string>] [--ensure-unique-name] [--auto-start] [--bridge <iface>] [--port <port>]
+       nixos-container create <container-name> [--nixos-path <path>] [--system-path <path>] [--config-file <path>] [--config <string>] [--ensure-unique-name] [--auto-start] [--bridge <iface>] [--port <port>] [--extra-nspwan-flags <string>]
        nixos-container destroy <container-name>
        nixos-container start <container-name>
        nixos-container stop <container-name>
@@ -47,6 +47,7 @@ my $port;
 my $extraConfig;
 my $signal;
 my $configFile;
+my $extraNspawnFlags;
 
 GetOptions(
     "help" => sub { showHelp() },
@@ -58,7 +59,8 @@ GetOptions(
     "signal=s" => \$signal,
     "nixos-path=s" => \$nixosPath,
     "config=s" => \$extraConfig,
-    "config-file=s" => \$configFile
+    "config-file=s" => \$configFile,
+    "extra-nspawn-flags=s" => \$extraNspawnFlags
     ) or exit 1;
 
 my $action = $ARGV[0] or die "$0: no action specified\n";
@@ -166,6 +168,7 @@ if ($action eq "create") {
     push @conf, "HOST_BRIDGE=$bridge\n";
     push @conf, "HOST_PORT=$port\n";
     push @conf, "AUTO_START=$autoStart\n";
+    push @conf, "EXTRA_NSPAWN_FLAGS=\"$extraNspawnFlags\"\n";
     write_file($confFile, \@conf);
 
     close($lock);
