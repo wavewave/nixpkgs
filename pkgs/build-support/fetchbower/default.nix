@@ -1,4 +1,4 @@
-{ stdenv, lib, bower2nix }:
+{ stdenv, lib, bower2nix, cacert }:
 let
   bowerVersion = version:
     let
@@ -17,6 +17,7 @@ let
       # $out.
       cp -R out $out
     '';
+    GIT_SSL_CAINFO = "${cacert}/etc/ssl/certs/ca-bundle.crt";
     outputHashMode = "recursive";
     outputHashAlgo = "sha256";
     inherit outputHash;
