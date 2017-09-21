@@ -37,10 +37,6 @@ in
     inherit (darwin) opencflite;
   };
 
-  ios-cross = callPackage ../os-specific/darwin/ios-cross {
-    inherit (darwin) binutils;
-  };
-
   libobjc = apple-source-releases.objc4;
 
   opencflite = callPackage ../os-specific/darwin/opencflite { };
