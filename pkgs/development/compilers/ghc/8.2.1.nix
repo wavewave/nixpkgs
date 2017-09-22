@@ -88,7 +88,7 @@ stdenv.mkDerivation rec {
   patches = [
     ./ghc-gold-linker.patch
   ] ++ stdenv.lib.optionals (targetPlatform != hostPlatform) [
-    ./D4008.diff
+    ./D4008-backport.diff
   ] ++ stdenv.lib.optionals prebuiltAndroidTarget [
     ./android-patches/add-llvm-target-data-layout.patch
     ./android-patches/unix-posix_vdisable.patch
