@@ -55,6 +55,13 @@ let
   libDeps = platform: [ ncurses ]
     ++ stdenv.lib.optional (!enableIntegerSimple) gmp
     ++ stdenv.lib.optional (platform.libc != "glibc") libiconv;
+
+  targetCC =
+    if hostPlatform == buildPlatform
+    then __targetPackages.stdenv.cc
+    else assert targetPlatform == hostPlatform;
+      # build != host == target
+      stdenv.cc;
 in
 stdenv.mkDerivation rec {
   version = "8.0.2";
@@ -73,7 +80,11 @@ stdenv.mkDerivation rec {
     ++ stdenv.lib.optional stdenv.isLinux ./ghc-no-madv-free.patch
     ++ stdenv.lib.optional stdenv.isDarwin ./ghc-8.0.2-no-cpp-warnings.patch;
 
+  # GHC is a bit confused on its cross terminology.
   preConfigure = ''
+    for env in $(env | grep '^TARGET_' | sed -E 's|\+?=.*||'); do
+      export "''${env#TARGET_}=''${!env}"
+    done
     echo -n "${buildMK}" > mk/build.mk
     sed -i -e 's|-isysroot /Developer/SDKs/MacOSX10.5.sdk||' configure
   '' + stdenv.lib.optionalString (!stdenv.isDarwin) ''
@@ -87,6 +98,17 @@ stdenv.mkDerivation rec {
     ++ stdenv.lib.optional (targetPlatform != hostPlatform) "target";
   # `--with` flags for libraries needed for RTS linker
   configureFlags = [
+    # GHC is a bit confused on its cross terminology, as these would normally be
+    # the *host* tools. Also, passing these on the command line seems to have a
+    # different effect that merely defining them.
+    "CC=${targetCC}/bin/${targetCC.prefix}cc"
+    "LD=${targetCC.binutils}/bin/${targetCC.prefix}ld"
+    "AS=${targetCC.binutils.binutils}/bin/${targetCC.prefix}as"
+    "AR=${targetCC.binutils.binutils}/bin/${targetCC.prefix}ar"
+    "NM=${targetCC.binutils.binutils}/bin/${targetCC.prefix}nm"
+    "RANLIB=${targetCC.binutils.binutils}/bin/${targetCC.prefix}ranlib"
+    "READELF=${targetCC.binutils.binutils}/bin/${targetCC.prefix}readelf"
+    "STRIP=${targetCC.binutils.binutils}/bin/${targetCC.prefix}strip"
     "--datadir=$doc/share/doc/ghc"
     "--with-curses-includes=${ncurses.dev}/include" "--with-curses-libraries=${ncurses.out}/lib"
   ] ++ stdenv.lib.optional (targetPlatform == hostPlatform && ! enableIntegerSimple) [
@@ -103,12 +125,7 @@ stdenv.mkDerivation rec {
   nativeBuildInputs = [ ghc perl hscolour sphinx ];
 
   # For building runtime libs
-  __depsBuildTarget =
-    if hostPlatform == buildPlatform then [
-      __targetPackages.stdenv.cc
-    ] else assert targetPlatform == hostPlatform; [ # build != host == target
-      stdenv.cc
-    ];
+  __depsBuildTarget = [ targetCC ];
 
   buildInputs = libDeps hostPlatform;
 
