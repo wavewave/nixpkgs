@@ -7,7 +7,7 @@ let
   isCross = buildPlatform != hostPlatform;
   inherit (buildPackages)
     fetchurl removeReferencesTo
-    pkgconfig binutils coreutils gnugrep gnused glibcLocales;
+    pkgconfig coreutils gnugrep gnused glibcLocales;
 in
 
 { pname
@@ -115,10 +115,10 @@ let
   crossCabalFlags = [
     "--with-ghc=${ghc.prefix}ghc"
     "--with-ghc-pkg=${ghc.prefix}ghc-pkg"
-    "--with-gcc=${ghc.prefix}cc"
-    "--with-ld=${ghc.prefix}ld"
-    "--with-hsc2hs=${nativeGhc}/bin/hsc2hs"
-    "--with-strip=${binutils}/bin/${ghc.prefix}strip"
+    "--with-gcc=${stdenv.cc.prefix}cc"
+    "--with-ld=${stdenv.cc.binutils.prefix}ld"
+    "--with-hsc2hs=${nativeGhc}/bin/hsc2hs" # not cross one
+    "--with-strip=${stdenv.cc.binutils.prefix}strip"
   ] ++ (if isHaLVM then [] else ["--hsc2hs-options=--cross-compile"]);
 
   crossCabalFlagsString =
