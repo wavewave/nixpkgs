@@ -1,7 +1,9 @@
+declare -A boostPathsSeen
+
 _addToBoostPath() {
     local dir="$1"
     # Stop if we've already visited here.
-    if [ -n "${boostPathsSeen[$dir]}" ]; then return; fi
+    [[ -z "${boostPathsSeen[$dir]}" ]] || return 0
     boostPathsSeen[$dir]=1
 
     case "$dir" in
@@ -9,16 +11,16 @@ _addToBoostPath() {
         *)     addToSearchPathWithCustomDelimiter ' ' BOOST_LIBDIR "$dir/lib" ;;
     esac
 
-    # Inspect the propagated inputs (if they exist) and recur on them.
     local prop="$dir/nix-support/propagated-build-inputs"
-    if [ -e $prop ]; then
+    # Inspect the propagated inputs (if they exist) and recur on them.
+    if [ -e "$prop" ]; then
         local new_path
-        while IFS= read -r new_path; do
-            _addToBoostPath $new_path
-        done < $prop
+        for new_path in $(< "$prop"); do
+            _addToBoostPath "$new_path"
+        done
     fi
 }
 
-_addToBoostPath() @dev@
+_addToBoostPath @dev@
 
-if [ -Z "$NIX_DEBUG" ]; unset -f _addToBoostPath; fi
+if [ -Z "$NIX_DEBUG" ]; then unset -f _addToBoostPath; fi
