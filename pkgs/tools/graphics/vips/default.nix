@@ -11,8 +11,10 @@ stdenv.mkDerivation rec {
     sha256 = "01hh1baar2r474kny24fcq6ddshcvq104207mqxnkis0as6pzjq9";
   };
 
+  nativeBuildInputs = [ pkgconfig ];
+
   buildInputs =
-    [ pkgconfig glib libxml2 fftw orc lcms
+    [ glib libxml2 fftw orc lcms
       imagemagick openexr libtiff libjpeg
       libgsf libexif python27 libpng
     ];
