@@ -169,8 +169,7 @@ let
   propagatedBuildInputs = buildDepends ++ libraryHaskellDepends ++ executableHaskellDepends ++
                           optionals stdenv.isDarwin libraryDarwinFrameworkDepends;
   otherBuildInputs = setupHaskellDepends ++ extraLibraries ++ librarySystemDepends ++ executableSystemDepends ++
-                     optionals stdenv.isDarwin executableDarwinFrameworkDepends ++
-                     optionals (allPkgconfigDepends != []) allPkgconfigDepends ++
+                     optionals stdenv.isDarwin executableDarwinFrameworkDepends ++ allPkgconfigDepends ++
                      optionals doCheck (testDepends ++ testHaskellDepends ++ testSystemDepends ++ testToolDepends) ++
                      # ghcjs's hsc2hs calls out to the native hsc2hs
                      optional isGhcjs nativeGhc ++
