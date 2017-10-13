@@ -7,8 +7,8 @@
   src-spec ?
     { owner = "commercialhaskell";
       repo = "all-cabal-hashes";
-      rev = "b490d26340638934d13c0c0cd4089dec0fb6b85e";
-      sha256 = "11nyyhvwb3yd5p16cn005a4s7s7qwb0dwjb5ylz4hlhcrhqyblx8";
+      rev = "a64a301b0467c358d1f9826ff3232311d48c5341";
+      sha256 = "0lhgypkq14y32qwwiq645kdpsh92jfzwx0n5lk7s0y4w8sczmw3g";
     }
 , lib
 }:
