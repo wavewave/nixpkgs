@@ -379,11 +379,12 @@ stdenv.mkDerivation ({
 
     env = stdenv.mkDerivation {
       name = "interactive-${pname}-${version}-environment";
-      propagatedNativeBuildInputs = [ ghcEnv systemBuildInputs ]
+      nativeBuildInputs = optional (allPkgconfigDepends != []) pkgconfig ++ toolInputs;
+      propagatedNativeBuildInputs = [ ghcEnv ]
         ++ optional isGhcjs ghc."socket.io"; # for ghcjsi
+      propagatedBuildInputs = systemBuildInputs;
       LANG = "en_US.UTF-8";
       LOCALE_ARCHIVE = optionalString buildPlatform.isLinux "${buildPackages.glibcLocales}/lib/locale/locale-archive";
-      nativeBuildInputs = toolInputs;
       shellHook = ''
         export NIX_${ghcCommandCaps}="${ghcEnv}/bin/${ghcCommand}"
         export NIX_${ghcCommandCaps}PKG="${ghcEnv}/bin/${ghcCommand}-pkg"
