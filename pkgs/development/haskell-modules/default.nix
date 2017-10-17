@@ -1,4 +1,4 @@
-{ pkgs, stdenv, lib, haskellLib, ghc, all-cabal-hashes
+{ pkgs, stdenv, lib, haskellLib, ghc, buildPackages
 , compilerConfig ? (self: super: {})
 , packageSetConfig ? (self: super: {})
 , overrides ? (self: super: {})
@@ -8,12 +8,12 @@
 }:
 
 let
-
   inherit (lib) extends makeExtensible;
   inherit (haskellLib) overrideCabal makePackageSet;
 
   haskellPackages = pkgs.callPackage makePackageSet {
     package-set = initialPackages;
+    inherit (buildPackages) all-cabal-hashes;
     inherit stdenv haskellLib ghc extensible-self;
   };
 
