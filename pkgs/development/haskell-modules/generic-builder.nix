@@ -306,7 +306,7 @@ stdenv.mkDerivation ({
 
   buildPhase = ''
     runHook preBuild
-    ${setupCommand} build ${buildTarget}${crossCabalFlagsString}
+    ${setupCommand} build ${buildTarget}
     runHook postBuild
   '';
 
