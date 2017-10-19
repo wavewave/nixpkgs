@@ -110,8 +110,7 @@ let
   # We cannot enable -j<n> parallelism for libraries because GHC is far more
   # likely to generate a non-determistic library ID in that case. Further
   # details are at <https://github.com/peti/ghc-library-id-bug>.
-  enableParallelBuilding = (versionOlder "7.8" ghc.version && !hasActiveLibrary)
-    || versionOlder "8.0.1" (if ghc.isGhcjs or false then ghc.bootPkgs.ghc.version else ghc.version);
+  enableParallelBuilding = (versionOlder "7.8" ghc.version && !hasActiveLibrary) || versionOlder "8.0.1" ghc.version;
 
   crossCabalFlags = [
     "--with-ghc=${ghc.prefix}ghc"
@@ -133,7 +132,7 @@ let
     "--package-db=$packageConfDir"
     (optionalString (enableSharedExecutables && stdenv.isLinux) "--ghc-option=-optl=-Wl,-rpath=$out/lib/${ghc.name}/${pname}-${version}")
     (optionalString (enableSharedExecutables && stdenv.isDarwin) "--ghc-option=-optl=-Wl,-headerpad_max_install_names")
-    (optionalString enableParallelBuilding "--${ghcCommand'}-option=-j$NIX_BUILD_CORES")
+    (optionalString enableParallelBuilding "--ghc-option=-j$NIX_BUILD_CORES")
     (optionalString useCpphs "--with-cpphs=${cpphs}/bin/cpphs --ghc-options=-cpp --ghc-options=-pgmP${cpphs}/bin/cpphs --ghc-options=-optP--cpp")
     (enableFeature (enableDeadCodeElimination && (versionAtLeast "8.0.1" ghc.version)) "split-objs")
     (enableFeature enableLibraryProfiling "library-profiling")
