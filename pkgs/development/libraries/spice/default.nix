@@ -34,9 +34,9 @@ stdenv.mkDerivation rec {
 
   buildInputs = [ pixman celt alsaLib openssl libjpeg zlib
                   libXrandr libXfixes libXrender libXext libXinerama
-                  python pyparsing glib cyrus_sasl lz4 ];
+                  python pyparsing glib cyrus_sasl lz4 spice_protocol ];
 
-  nativeBuildInputs = [ pkgconfig spice_protocol ];
+  nativeBuildInputs = [ pkgconfig ];
 
   NIX_CFLAGS_COMPILE = "-fno-stack-protector";
 

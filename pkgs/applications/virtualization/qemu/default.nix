@@ -36,8 +36,10 @@ stdenv.mkDerivation rec {
     sha256 = "053c7ivp3li7cdagzkp2wdc5myybzjf826r6qfkcf0xvn4bv5gq0";
   };
 
+  nativeBuildInputs = [ pkgconfig ];
+
   buildInputs =
-    [ python2 zlib pkgconfig glib ncurses perl pixman
+    [ python2 zlib glib ncurses perl pixman
       vde2 texinfo flex bison makeWrapper lzo snappy
       gnutls nettle curl
     ]
