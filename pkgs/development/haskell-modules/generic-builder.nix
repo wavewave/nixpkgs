@@ -169,8 +169,7 @@ let
   propagatedBuildInputs = buildDepends ++ libraryHaskellDepends ++ executableHaskellDepends ++
                           optionals stdenv.isDarwin libraryDarwinFrameworkDepends;
   otherBuildInputs = setupHaskellDepends ++ extraLibraries ++ librarySystemDepends ++ executableSystemDepends ++
-                     optionals stdenv.isDarwin executableDarwinFrameworkDepends ++
-                     optionals (allPkgconfigDepends != []) allPkgconfigDepends ++
+                     optionals stdenv.isDarwin executableDarwinFrameworkDepends ++ allPkgconfigDepends ++
                      optionals doCheck (testDepends ++ testHaskellDepends ++ testSystemDepends ++ testToolDepends) ++
                      # ghcjs's hsc2hs calls out to the native hsc2hs
                      optional isGhcjs nativeGhc ++
@@ -380,11 +379,12 @@ stdenv.mkDerivation ({
 
     env = stdenv.mkDerivation {
       name = "interactive-${pname}-${version}-environment";
-      propagatedNativeBuildInputs = [ ghcEnv systemBuildInputs ]
+      nativeBuildInputs = optional (allPkgconfigDepends != []) pkgconfig ++ toolInputs;
+      propagatedNativeBuildInputs = [ ghcEnv ]
         ++ optional isGhcjs ghc."socket.io"; # for ghcjsi
+      propagatedBuildInputs = systemBuildInputs;
       LANG = "en_US.UTF-8";
       LOCALE_ARCHIVE = optionalString buildPlatform.isLinux "${buildPackages.glibcLocales}/lib/locale/locale-archive";
-      nativeBuildInputs = toolInputs;
       shellHook = ''
         export NIX_${ghcCommandCaps}="${ghcEnv}/bin/${ghcCommand}"
         export NIX_${ghcCommandCaps}PKG="${ghcEnv}/bin/${ghcCommand}-pkg"

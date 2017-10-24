@@ -59,7 +59,7 @@ buildPackages.symlinkJoin {
   # as a dedicated drv attribute, like `compiler-name`
   name = ghc.name + "-with-packages";
   paths = paths ++ [ghc];
-  propagatedBuildInputs = packages;
+  __depsTargetTargetPropagated = packages;
   extraOutputsToInstall = [ "out" "doc" ];
   inherit ignoreCollisions;
   postBuild = ''
@@ -70,11 +70,7 @@ buildPackages.symlinkJoin {
     WRAPPER_NIX_CFLAGS_LINK=""
     ${lib.optionalString stdenv.isDarwin ''
       # Find all the Framework paths that must be available at link time
-      allPkgs="''${__depsHostHost[@]} ''${depsHostTarget[@]}"
-      for x in ${toString packages} ; do
-        findInputs "$x" allPkgs propagated-native-build-inputs
-      done
-      for x in $allPkgs ; do
+      for x in "''${__pkgsTargetTarget[@]}" ; do
         if [ -d "$x/Library/Frameworks" ] ; then
           WRAPPER_NIX_CFLAGS_LINK+=" -framework-path$x/Library/Frameworks"
         fi
