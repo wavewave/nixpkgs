@@ -43,6 +43,9 @@ stdenv.mkDerivation rec {
     #"--without-termlib"
     #"--without-ticlib"
     "--without-cxx"
+  ] ++ lib.optionals (hostPlatform.isDarwin && (hostPlatform.isAarch64 || hostPlatform.isArm)) [
+    "--without-progs"
+    "--without-tests"
   ] ++ lib.optional unicode "--enable-widec";
 
   # Only the C compiler, and explicitly not C++ compiler needs this flag on solaris:
